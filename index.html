@@ -6,213 +6,47 @@
   <meta name="theme-color" content="#1a73e8" />
   <title>PharmaOS — ফার্মেসি ম্যানেজমেন্ট</title>
   <link rel="manifest" href="manifest.json" />
-
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
     body { font-family: 'Inter', 'Hind Siliguri', sans-serif; }
-
     .gradient-bg {
       background: linear-gradient(135deg, #1a73e8 0%, #0d47a1 50%, #01579b 100%);
     }
-
     .glass-card {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255,255,255,0.97);
       backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255,255,255,0.3);
     }
-
-    .pulse-dot {
-      animation: pulse 2s infinite;
-    }
-
+    .pulse-dot { animation: pulse 2s infinite; }
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+      0%,100% { opacity:1; } 50% { opacity:0.4; }
     }
-
-    .slide-up {
-      animation: slideUp 0.5s ease-out;
-    }
-
+    .slide-up { animation: slideUp 0.5s ease-out; }
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity:0; transform:translateY(30px); }
+      to   { opacity:1; transform:translateY(0); }
     }
-
-    .spin {
-      animation: spin 1s linear infinite;
-    }
-
+    .spin { animation: spin 1s linear infinite; }
     @keyframes spin {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
+      from { transform:rotate(0deg); }
+      to   { transform:rotate(360deg); }
+    }
+    .fade-in { animation: fadeIn 0.4s ease-out; }
+    @keyframes fadeIn {
+      from { opacity:0; } to { opacity:1; }
     }
   </style>
-
-  <script>
-    // ═══════════════════════════════════════════════════════
-    // CONFIGURATION — GAS API URL
-    // ═══════════════════════════════════════════════════════
-    const CONFIG = {
-      GAS_API_URL : "https://script.google.com/macros/s/AKfycbxsRb_liX3Owb9uQAG4Ma_--BuHKsy5CGctxKO4y4laEt4paVuYas5qtaUuG0bZhkyC1A/exec",
-      APP_VERSION : "1.0.0",
-      APP_NAME    : "PharmaOS"
-    };
-
-    // ═══════════════════════════════════════════════════════
-    // API CLIENT
-    // ═══════════════════════════════════════════════════════
-    const API = {
-      async get(action, params = {}) {
-        const url = new URL(CONFIG.GAS_API_URL);
-        url.searchParams.set("action", action);
-        Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-        const res = await fetch(url.toString());
-        return res.json();
-      },
-
-      async post(action, body = {}) {
-        const res = await fetch(CONFIG.GAS_API_URL, {
-          method  : "POST",
-          headers : { "Content-Type": "application/json" },
-          body    : JSON.stringify({ action, ...body })
-        });
-        return res.json();
-      }
-    };
-
-    // ═══════════════════════════════════════════════════════
-    // UI HELPERS
-    // ═══════════════════════════════════════════════════════
-    function showScreen(id) {
-      document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
-      document.getElementById(id).classList.remove("hidden");
-    }
-
-    function setStatus(msg, type = "info") {
-      const el = document.getElementById("status-msg");
-      const colors = {
-        info    : "text-blue-600",
-        success : "text-green-600",
-        error   : "text-red-600",
-        warning : "text-yellow-600"
-      };
-      el.className = `text-sm font-medium mt-3 ${colors[type]}`;
-      el.textContent = msg;
-    }
-
-    function showToast(msg, type = "success") {
-      const toast = document.getElementById("toast");
-      const colors = {
-        success : "bg-green-500",
-        error   : "bg-red-500",
-        warning : "bg-yellow-500",
-        info    : "bg-blue-500"
-      };
-      toast.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg transition-all ${colors[type]}`;
-      toast.textContent = msg;
-      toast.classList.remove("opacity-0", "translate-y-[-20px]");
-      setTimeout(() => toast.classList.add("opacity-0"), 3000);
-    }
-
-    // ═══════════════════════════════════════════════════════
-    // PING — Test API connection
-    // ═══════════════════════════════════════════════════════
-    async function pingAPI() {
-      const btn     = document.getElementById("ping-btn");
-      const result  = document.getElementById("ping-result");
-
-      btn.disabled  = true;
-      btn.innerHTML = `<span class="spin inline-block">⟳</span> পরীক্ষা করছি...`;
-      result.classList.add("hidden");
-
-      try {
-        const data = await API.get("ping");
-
-        if (data.status === "OK") {
-          result.innerHTML = `
-            <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-left">
-              <p class="text-green-700 font-semibold mb-2">✅ সংযোগ সফল!</p>
-              <div class="text-sm text-gray-600 space-y-1">
-                <p>📦 Version: <span class="font-mono font-bold">${data.version}</span></p>
-                <p>👤 Tenant: <span class="font-mono">${data.tenant}</span></p>
-                <p>🏥 Pharmacy: <span class="font-mono">${data.pharmacy}</span></p>
-                <p>🕐 Server Time: <span class="font-mono">${new Date(data.timestamp).toLocaleString('bn-BD')}</span></p>
-              </div>
-            </div>`;
-          result.classList.remove("hidden");
-          showToast("API সংযোগ সফল! ✅", "success");
-        } else {
-          throw new Error("Invalid response");
-        }
-      } catch (err) {
-        result.innerHTML = `
-          <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-left">
-            <p class="text-red-700 font-semibold">❌ সংযোগ ব্যর্থ!</p>
-            <p class="text-sm text-red-500 mt-1">${err.message}</p>
-          </div>`;
-        result.classList.remove("hidden");
-        showToast("সংযোগ ব্যর্থ! ❌", "error");
-      } finally {
-        btn.disabled  = false;
-        btn.innerHTML = `🔌 API সংযোগ পরীক্ষা করুন`;
-      }
-    }
-
-    // ═══════════════════════════════════════════════════════
-    // ONLINE / OFFLINE STATUS
-    // ═══════════════════════════════════════════════════════
-    function updateOnlineStatus() {
-      const dot   = document.getElementById("online-dot");
-      const label = document.getElementById("online-label");
-      if (navigator.onLine) {
-        dot.className   = "w-2 h-2 rounded-full bg-green-400 pulse-dot";
-        label.textContent = "অনলাইন";
-        label.className   = "text-xs text-green-300";
-      } else {
-        dot.className   = "w-2 h-2 rounded-full bg-yellow-400 pulse-dot";
-        label.textContent = "অফলাইন";
-        label.className   = "text-xs text-yellow-300";
-      }
-    }
-
-    // ═══════════════════════════════════════════════════════
-    // SERVICE WORKER REGISTRATION
-    // ═══════════════════════════════════════════════════════
-    async function registerSW() {
-      if ("serviceWorker" in navigator) {
-        try {
-          const reg = await navigator.serviceWorker.register("sw.js");
-          console.log("✅ Service Worker registered:", reg.scope);
-        } catch (err) {
-          console.warn("⚠️ SW registration failed:", err);
-        }
-      }
-    }
-
-    // ═══════════════════════════════════════════════════════
-    // APP INIT
-    // ═══════════════════════════════════════════════════════
-    document.addEventListener("DOMContentLoaded", () => {
-      updateOnlineStatus();
-      window.addEventListener("online",  updateOnlineStatus);
-      window.addEventListener("offline", updateOnlineStatus);
-      registerSW();
-      showScreen("screen-home");
-    });
-  </script>
 </head>
 
 <body class="h-full gradient-bg min-h-screen">
 
-  <!-- Toast Notification -->
-  <div id="toast" class="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg opacity-0 transition-all"></div>
+  <!-- Toast -->
+  <div id="toast" class="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg opacity-0 transition-all duration-300 pointer-events-none"></div>
 
   <!-- TOP STATUS BAR -->
   <div class="flex items-center justify-between px-4 py-2 bg-black bg-opacity-20">
@@ -224,82 +58,500 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════════════ -->
-  <!-- SCREEN: HOME                                        -->
-  <!-- ═══════════════════════════════════════════════════ -->
-  <div id="screen-home" class="screen hidden slide-up">
-
-    <!-- HERO SECTION -->
-    <div class="text-center px-6 pt-12 pb-8">
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SCREEN 1: LOGIN                            -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="screen-login" class="screen hidden slide-up">
+    <div class="text-center px-6 pt-12 pb-6">
       <div class="text-6xl mb-4">💊</div>
       <h1 class="text-3xl font-bold text-white mb-2">PharmaOS</h1>
       <p class="text-blue-200 text-sm">স্মার্ট ফার্মেসি ম্যানেজমেন্ট সিস্টেম</p>
-      <p class="text-blue-300 text-xs mt-1">Offline-First • Cloud-Powered • Multi-Tenant</p>
     </div>
 
-    <!-- MAIN CARD -->
     <div class="mx-4 glass-card rounded-2xl p-6 shadow-2xl">
+      <h2 class="text-lg font-bold text-gray-800 mb-1 text-center">স্বাগতম!</h2>
+      <p class="text-sm text-gray-500 text-center mb-6">আপনার Google Account দিয়ে লগইন করুন</p>
 
-      <!-- Feature Grid -->
-      <div class="grid grid-cols-2 gap-3 mb-6">
-        <div class="bg-blue-50 rounded-xl p-3 text-center">
-          <div class="text-2xl mb-1">🧾</div>
-          <p class="text-xs font-semibold text-blue-700">POS বিলিং</p>
-          <p class="text-xs text-gray-500">অফলাইনেও কাজ করে</p>
-        </div>
-        <div class="bg-green-50 rounded-xl p-3 text-center">
-          <div class="text-2xl mb-1">📦</div>
-          <p class="text-xs font-semibold text-green-700">স্টক ট্র্যাকিং</p>
-          <p class="text-xs text-gray-500">FEFO পদ্ধতিতে</p>
-        </div>
-        <div class="bg-yellow-50 rounded-xl p-3 text-center">
-          <div class="text-2xl mb-1">⏰</div>
-          <p class="text-xs font-semibold text-yellow-700">মেয়াদ সতর্কতা</p>
-          <p class="text-xs text-gray-500">স্বয়ংক্রিয় alert</p>
-        </div>
-        <div class="bg-purple-50 rounded-xl p-3 text-center">
-          <div class="text-2xl mb-1">📊</div>
-          <p class="text-xs font-semibold text-purple-700">রিপোর্ট</p>
-          <p class="text-xs text-gray-500">দৈনিক/মাসিক</p>
-        </div>
-      </div>
-
-      <!-- API Test Button -->
+      <!-- Google Sign-In Button -->
       <button
-        id="ping-btn"
-        onclick="pingAPI()"
-        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-md mb-3">
-        🔌 API সংযোগ পরীক্ষা করুন
+        id="google-signin-btn"
+        onclick="signInWithGoogle()"
+        class="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 hover:border-blue-400 hover:shadow-md text-gray-700 font-semibold py-3.5 px-4 rounded-xl transition-all">
+        <svg width="20" height="20" viewBox="0 0 48 48">
+          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        </svg>
+        Google দিয়ে লগইন করুন
       </button>
 
-      <!-- Ping Result -->
-      <div id="ping-result" class="hidden mb-3"></div>
+      <div id="login-status" class="mt-4 text-center text-sm text-gray-500 hidden">
+        <span class="spin inline-block mr-2">⟳</span> যাচাই করছি...
+      </div>
 
-      <!-- Coming Soon -->
-      <div class="border-t border-gray-100 pt-4 mt-2">
-        <p class="text-xs text-center text-gray-400 mb-3">近 近 আসছে শীঘ্রই</p>
-        <div class="space-y-2">
-          <button disabled class="w-full bg-gray-100 text-gray-400 font-medium py-2.5 px-4 rounded-xl text-sm cursor-not-allowed">
-            🔐 লগইন করুন (Phase 4)
-          </button>
-          <button disabled class="w-full bg-gray-100 text-gray-400 font-medium py-2.5 px-4 rounded-xl text-sm cursor-not-allowed">
-            🧾 POS বিলিং (Phase 5)
-          </button>
+      <div id="login-error" class="mt-4 hidden">
+        <div class="bg-red-50 border border-red-200 rounded-xl p-3">
+          <p id="login-error-msg" class="text-red-600 text-sm text-center"></p>
         </div>
       </div>
 
-      <!-- Status Message -->
-      <p id="status-msg" class="text-sm font-medium mt-3 text-blue-600"></p>
+      <!-- Features -->
+      <div class="grid grid-cols-2 gap-2 mt-6 pt-4 border-t border-gray-100">
+        <div class="text-center p-2">
+          <div class="text-xl mb-1">🧾</div>
+          <p class="text-xs text-gray-600 font-medium">POS বিলিং</p>
+        </div>
+        <div class="text-center p-2">
+          <div class="text-xl mb-1">📦</div>
+          <p class="text-xs text-gray-600 font-medium">স্টক ট্র্যাকিং</p>
+        </div>
+        <div class="text-center p-2">
+          <div class="text-xl mb-1">⏰</div>
+          <p class="text-xs text-gray-600 font-medium">মেয়াদ Alert</p>
+        </div>
+        <div class="text-center p-2">
+          <div class="text-xl mb-1">📊</div>
+          <p class="text-xs text-gray-600 font-medium">রিপোর্ট</p>
+        </div>
+      </div>
     </div>
 
-    <!-- FOOTER -->
-    <div class="text-center py-6">
-      <p class="text-blue-300 text-xs">PharmaOS v1.0.0 • Powered by Google Sheets</p>
-      <p class="text-blue-400 text-xs mt-1">© 2026 — nazmul2ahmed</p>
+    <div class="text-center py-4">
+      <p class="text-blue-300 text-xs">© 2026 PharmaOS — nazmul2ahmed</p>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SCREEN 2: LICENSE CHECK (Loading)          -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="screen-checking" class="screen hidden fade-in">
+    <div class="flex flex-col items-center justify-center min-h-screen px-6">
+      <div class="glass-card rounded-2xl p-8 text-center shadow-2xl w-full max-w-sm">
+        <div class="text-5xl mb-4">🔐</div>
+        <h2 class="text-lg font-bold text-gray-800 mb-2">License যাচাই হচ্ছে</h2>
+        <p id="checking-email" class="text-sm text-gray-500 mb-4"></p>
+        <div class="flex justify-center gap-1">
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0ms"></div>
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay:150ms"></div>
+          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay:300ms"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SCREEN 3: BLOCKED (No License)             -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="screen-blocked" class="screen hidden slide-up">
+    <div class="flex flex-col items-center justify-center min-h-screen px-6">
+      <div class="glass-card rounded-2xl p-8 text-center shadow-2xl w-full max-w-sm">
+        <div class="text-5xl mb-4">🚫</div>
+        <h2 class="text-xl font-bold text-red-600 mb-2">অ্যাক্সেস নেই</h2>
+        <p id="blocked-msg" class="text-sm text-gray-600 mb-2"></p>
+        <p id="blocked-email" class="text-xs text-gray-400 mb-6"></p>
+
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4 text-left">
+          <p class="text-xs text-yellow-700 font-semibold mb-1">📞 সাহায্যের জন্য যোগাযোগ করুন:</p>
+          <p class="text-xs text-yellow-600">Admin: nazmul2ahmed@gmail.com</p>
+        </div>
+
+        <button
+          onclick="signOut()"
+          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 rounded-xl text-sm transition-all">
+          🔄 অন্য Account দিয়ে চেষ্টা করুন
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SCREEN 4: DASHBOARD (Authenticated)        -->
+  <!-- ══════════════════════════════════════════ -->
+  <div id="screen-dashboard" class="screen hidden slide-up">
+
+    <!-- Header -->
+    <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
+      <div>
+        <p class="text-white font-bold text-sm" id="dash-pharmacy-name">Loading...</p>
+        <p class="text-blue-200 text-xs" id="dash-user-email"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="dash-trial-badge" class="hidden bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full"></span>
+        <button onclick="signOut()" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-xs px-3 py-1.5 rounded-lg transition-all">
+          লগআউট
+        </button>
+      </div>
+    </div>
+
+    <!-- Welcome Card -->
+    <div class="mx-4 mt-4 glass-card rounded-2xl p-5 shadow-xl">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">💊</div>
+        <div>
+          <p class="font-bold text-gray-800" id="dash-welcome">স্বাগতম!</p>
+          <p class="text-xs text-gray-500" id="dash-status-text"></p>
+        </div>
+      </div>
+
+      <!-- Quick Stats -->
+      <div class="grid grid-cols-3 gap-2 mb-4">
+        <div class="bg-blue-50 rounded-xl p-3 text-center">
+          <p class="text-xl font-bold text-blue-600" id="stat-drugs">—</p>
+          <p class="text-xs text-gray-500">ওষুধ</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-3 text-center">
+          <p class="text-xl font-bold text-green-600" id="stat-stock">—</p>
+          <p class="text-xs text-gray-500">স্টক ব্যাচ</p>
+        </div>
+        <div class="bg-red-50 rounded-xl p-3 text-center">
+          <p class="text-xl font-bold text-red-600" id="stat-alerts">—</p>
+          <p class="text-xs text-gray-500">Alerts</p>
+        </div>
+      </div>
+
+      <!-- Menu Grid -->
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="showToast('POS — Phase 5-এ আসছে!','info')"
+          class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-4 text-left transition-all">
+          <div class="text-2xl mb-1">🧾</div>
+          <p class="font-semibold text-sm">POS বিলিং</p>
+          <p class="text-xs text-blue-200">আসছে শীঘ্রই</p>
+        </button>
+        <button onclick="showToast('Inventory — Phase 6-এ আসছে!','info')"
+          class="bg-green-600 hover:bg-green-700 text-white rounded-xl p-4 text-left transition-all">
+          <div class="text-2xl mb-1">📦</div>
+          <p class="font-semibold text-sm">ইনভেন্টরি</p>
+          <p class="text-xs text-green-200">আসছে শীঘ্রই</p>
+        </button>
+        <button onclick="loadDashboardStats()"
+          class="bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-4 text-left transition-all">
+          <div class="text-2xl mb-1">🔄</div>
+          <p class="font-semibold text-sm">Refresh</p>
+          <p class="text-xs text-purple-200">Stats আপডেট</p>
+        </button>
+        <button onclick="showToast('Reports — Phase 7-এ আসছে!','info')"
+          class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl p-4 text-left transition-all">
+          <div class="text-2xl mb-1">📊</div>
+          <p class="font-semibold text-sm">রিপোর্ট</p>
+          <p class="text-xs text-yellow-100">আসছে শীঘ্রই</p>
+        </button>
+      </div>
+    </div>
+
+    <!-- Expiry Alerts Section -->
+    <div class="mx-4 mt-4 mb-6">
+      <div id="alerts-container" class="hidden glass-card rounded-2xl p-4 shadow-lg">
+        <p class="font-bold text-gray-800 mb-3 text-sm">⚠️ Expiry Alerts</p>
+        <div id="alerts-list" class="space-y-2"></div>
+      </div>
     </div>
 
   </div>
-  <!-- END SCREEN HOME -->
+  <!-- END DASHBOARD -->
+
+  <script>
+  // ═══════════════════════════════════════════════════════
+  // CONFIGURATION
+  // ═══════════════════════════════════════════════════════
+  const CONFIG = {
+    GAS_API_URL   : "https://script.google.com/macros/s/AKfycbxsRb_liX3Owb9uQAG4Ma_--BuHKsy5CGctxKO4y4laEt4paVuYas5qtaUuG0bZhkyC1A/exec",
+    GOOGLE_CLIENT_ID : "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE",
+    APP_VERSION   : "1.0.0"
+  };
+
+  // ═══════════════════════════════════════════════════════
+  // APP STATE
+  // ═══════════════════════════════════════════════════════
+  let APP = {
+    user         : null,   // { email, name, picture, id_token }
+    license      : null,   // { valid, status, daysLeft, pharmacy_name }
+    isOnline     : navigator.onLine
+  };
+
+  // ═══════════════════════════════════════════════════════
+  // API CLIENT
+  // ═══════════════════════════════════════════════════════
+  const API = {
+    async get(action, params = {}) {
+      const url = new URL(CONFIG.GAS_API_URL);
+      url.searchParams.set("action", action);
+      Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+      const res = await fetch(url.toString());
+      return res.json();
+    },
+    async post(action, body = {}) {
+      const res = await fetch(CONFIG.GAS_API_URL, {
+        method  : "POST",
+        headers : { "Content-Type": "application/json" },
+        body    : JSON.stringify({ action, ...body })
+      });
+      return res.json();
+    }
+  };
+
+  // ═══════════════════════════════════════════════════════
+  // SCREEN MANAGER
+  // ═══════════════════════════════════════════════════════
+  function showScreen(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
+    document.getElementById(id).classList.remove("hidden");
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // TOAST
+  // ═══════════════════════════════════════════════════════
+  function showToast(msg, type = "success") {
+    const toast = document.getElementById("toast");
+    const colors = {
+      success : "bg-green-500",
+      error   : "bg-red-500",
+      warning : "bg-yellow-500",
+      info    : "bg-blue-500"
+    };
+    toast.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg transition-all duration-300 ${colors[type]}`;
+    toast.textContent = msg;
+    toast.style.opacity = "1";
+    setTimeout(() => { toast.style.opacity = "0"; }, 3000);
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // GOOGLE SIGN-IN
+  // ═══════════════════════════════════════════════════════
+  function initGoogleSignIn() {
+    if (typeof google === "undefined" || !CONFIG.GOOGLE_CLIENT_ID || 
+        CONFIG.GOOGLE_CLIENT_ID === "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE") {
+      // DEV MODE — skip OAuth, use stored session
+      const saved = sessionStorage.getItem("pharmaos_user");
+      if (saved) {
+        APP.user = JSON.parse(saved);
+        validateAndProceed();
+      } else {
+        showScreen("screen-login");
+      }
+      return;
+    }
+
+    google.accounts.id.initialize({
+      client_id : CONFIG.GOOGLE_CLIENT_ID,
+      callback  : handleGoogleCallback,
+      auto_select: false
+    });
+  }
+
+  function signInWithGoogle() {
+    // DEV MODE — direct email login for testing
+    if (!CONFIG.GOOGLE_CLIENT_ID || 
+        CONFIG.GOOGLE_CLIENT_ID === "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE") {
+      const email = prompt("DEV MODE — আপনার Gmail টাইপ করুন:");
+      if (!email) return;
+      APP.user = {
+        email   : email.trim(),
+        name    : email.split("@")[0],
+        picture : "",
+        dev_mode: true
+      };
+      sessionStorage.setItem("pharmaos_user", JSON.stringify(APP.user));
+      validateAndProceed();
+      return;
+    }
+
+    google.accounts.id.prompt();
+  }
+
+  function handleGoogleCallback(response) {
+    // Decode JWT token
+    const payload = JSON.parse(atob(response.credential.split(".")[1]));
+    APP.user = {
+      email    : payload.email,
+      name     : payload.name,
+      picture  : payload.picture,
+      id_token : response.credential
+    };
+    sessionStorage.setItem("pharmaos_user", JSON.stringify(APP.user));
+    validateAndProceed();
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // LICENSE VALIDATION
+  // ═══════════════════════════════════════════════════════
+  async function validateAndProceed() {
+    showScreen("screen-checking");
+    document.getElementById("checking-email").textContent = APP.user.email;
+
+    try {
+      // Call GAS API to validate license
+      const result = await API.get("validateLicense", {
+        email      : APP.user.email,
+        licenseKey : localStorage.getItem("pharmaos_license_key") || ""
+      });
+
+      APP.license = result;
+
+      if (result.valid) {
+        // Save license info
+        localStorage.setItem("pharmaos_license", JSON.stringify(result));
+        loadDashboard();
+      } else {
+        showBlockedScreen(result);
+      }
+
+    } catch (err) {
+      // Network error — check cached license
+      const cached = localStorage.getItem("pharmaos_license");
+      if (cached) {
+        APP.license = JSON.parse(cached);
+        showToast("Offline mode — cached license ব্যবহার হচ্ছে", "warning");
+        loadDashboard();
+      } else {
+        showBlockedScreen({
+          message: "সার্ভারে সংযোগ হচ্ছে না। Internet check করুন।"
+        });
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // DASHBOARD LOADER
+  // ═══════════════════════════════════════════════════════
+  function loadDashboard() {
+    showScreen("screen-dashboard");
+
+    const license = APP.license;
+    const user    = APP.user;
+
+    // Set pharmacy name
+    const pharmacyName = license.pharmacy_name || license.data?.pharmacy_name || "আপনার ফার্মেসি";
+    document.getElementById("dash-pharmacy-name").textContent = "🏥 " + pharmacyName;
+    document.getElementById("dash-user-email").textContent    = user.email;
+    document.getElementById("dash-welcome").textContent       = `স্বাগতম, ${user.name}!`;
+
+    // Trial badge
+    if (license.status === "TRIAL" || license.daysLeft !== undefined) {
+      const daysLeft = license.daysLeft ?? license.data?.daysLeft ?? "?";
+      const badge    = document.getElementById("dash-trial-badge");
+      badge.textContent = `Trial: ${daysLeft} দিন`;
+      badge.classList.remove("hidden");
+      document.getElementById("dash-status-text").textContent = `Trial চলছে — ${daysLeft} দিন বাকি`;
+    } else {
+      document.getElementById("dash-status-text").textContent = "Subscription সচল ✅";
+    }
+
+    // Load stats
+    loadDashboardStats();
+    showToast("লগইন সফল! ✅", "success");
+  }
+
+  async function loadDashboardStats() {
+    try {
+      const [drugsRes, stockRes, alertsRes] = await Promise.all([
+        API.get("getDrugs",     {}),
+        API.get("getStock",     {}),
+        API.get("getStockAlert",{})
+      ]);
+
+      document.getElementById("stat-drugs").textContent =
+        drugsRes.data?.length  ?? "—";
+      document.getElementById("stat-stock").textContent =
+        stockRes.data?.length  ?? "—";
+      document.getElementById("stat-alerts").textContent =
+        alertsRes.data?.length ?? "0";
+
+      // Show alerts if any
+      if (alertsRes.data?.length > 0) {
+        const container = document.getElementById("alerts-container");
+        const list      = document.getElementById("alerts-list");
+        container.classList.remove("hidden");
+        list.innerHTML  = alertsRes.data.slice(0, 5).map(a => `
+          <div class="flex items-center justify-between bg-red-50 rounded-lg p-2">
+            <div>
+              <p class="text-xs font-semibold text-gray-800">${a.brand_name}</p>
+              <p class="text-xs text-gray-500">Batch: ${a.batch_number}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-xs font-bold ${a.days_to_expiry < 0 ? 'text-red-600' : 'text-yellow-600'}">
+                ${a.days_to_expiry < 0 ? 'মেয়াদ শেষ' : a.days_to_expiry + ' দিন'}
+              </p>
+              <p class="text-xs text-gray-400">${a.expiry_date}</p>
+            </div>
+          </div>`).join("");
+      }
+
+    } catch (err) {
+      console.warn("Stats load failed:", err);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // BLOCKED SCREEN
+  // ═══════════════════════════════════════════════════════
+  function showBlockedScreen(result) {
+    showScreen("screen-blocked");
+    document.getElementById("blocked-msg").textContent   =
+      result.message || "আপনার account authorized নয়।";
+    document.getElementById("blocked-email").textContent =
+      APP.user?.email || "";
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // SIGN OUT
+  // ═══════════════════════════════════════════════════════
+  function signOut() {
+    APP.user    = null;
+    APP.license = null;
+    sessionStorage.removeItem("pharmaos_user");
+    localStorage.removeItem("pharmaos_license");
+    showScreen("screen-login");
+    showToast("লগআউট সফল", "info");
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // ONLINE STATUS
+  // ═══════════════════════════════════════════════════════
+  function updateOnlineStatus() {
+    const dot   = document.getElementById("online-dot");
+    const label = document.getElementById("online-label");
+    APP.isOnline = navigator.onLine;
+    if (navigator.onLine) {
+      dot.className     = "w-2 h-2 rounded-full bg-green-400 pulse-dot";
+      label.textContent = "অনলাইন";
+      label.className   = "text-xs text-green-300";
+    } else {
+      dot.className     = "w-2 h-2 rounded-full bg-yellow-400 pulse-dot";
+      label.textContent = "অফলাইন";
+      label.className   = "text-xs text-yellow-300";
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // SERVICE WORKER
+  // ═══════════════════════════════════════════════════════
+  async function registerSW() {
+    if ("serviceWorker" in navigator) {
+      try {
+        await navigator.serviceWorker.register("sw.js");
+      } catch(e) {
+        console.warn("SW failed:", e);
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════
+  // GAS — validateLicense endpoint যোগ করতে হবে
+  // ═══════════════════════════════════════════════════════
+  // Code.gs এ route যোগ করতে হবে — পরের step এ করব
+
+  // ═══════════════════════════════════════════════════════
+  // APP INIT
+  // ═══════════════════════════════════════════════════════
+  document.addEventListener("DOMContentLoaded", () => {
+    updateOnlineStatus();
+    window.addEventListener("online",  updateOnlineStatus);
+    window.addEventListener("offline", updateOnlineStatus);
+    registerSW();
+    initGoogleSignIn();
+  });
+  </script>
 
 </body>
 </html>
