@@ -763,12 +763,57 @@
     document.getElementById("payment-section").classList.remove("hidden");
   };
 
-  window.submitPayment = () => {
-    const txn  = document.getElementById("payment-txn").value.trim();
-    const plan = localStorage.getItem("selected_plan") || "MONTHLY";
-    if (!txn) { showToast("Transaction ID দিন", "warning"); return; }
-    showToast(`✅ আপনার payment request পাঠানো হয়েছে! (${plan}) ২৪ ঘণ্টার মধ্যে activate হবে।`, "success");
-  };
+  window.submitPayment = async () => {
+  const txn   = document.getElementById("payment-txn").value.trim();
+  const plan  = localStorage.getItem("selected_plan") || "MONTHLY";
+  const email = window.APP.user?.email || "";
+
+  if (!txn) {
+    showToast("Transaction ID দিন", "warning");
+    return;
+  }
+  if (!email) {
+    showToast("আগে লগইন করুন", "error");
+    return;
+  }
+
+  const btn = document.querySelector("#payment-section button");
+  btn.textContent = "⟳ জমা হচ্ছে...";
+  btn.disabled    = true;
+
+  try {
+    const result = await gasGet("submitPayment", {
+      email  : email,
+      plan   : plan,
+      txn_id : txn
+    });
+
+    if (result.status === "OK") {
+      showToast("✅ Payment request জমা হয়েছে! ২৪ ঘণ্টার মধ্যে activate হবে।", "success");
+      btn.textContent = "✅ জমা হয়েছে";
+
+      // Success screen দেখান
+      document.getElementById("payment-section").innerHTML = `
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+          <div class="text-3xl mb-2">✅</div>
+          <p class="font-bold text-green-700">Payment Request জমা হয়েছে!</p>
+          <p class="text-sm text-green-600 mt-1">TXN ID: ${txn}</p>
+          <p class="text-xs text-gray-500 mt-2">
+            ২৪ ঘণ্টার মধ্যে verify হলে আপনার email-এ notification পাবেন।
+          </p>
+        </div>
+      `;
+    } else {
+      showToast(result.message || "সমস্যা হয়েছে", "error");
+      btn.textContent = "পেমেন্ট নিশ্চিত করুন →";
+      btn.disabled    = false;
+    }
+  } catch (err) {
+    showToast("Internet সমস্যা। আবার চেষ্টা করুন।", "error");
+    btn.textContent = "পেমেন্ট নিশ্চিত করুন →";
+    btn.disabled    = false;
+  }
+};
 
   // ════════════════════════════════
   // FIREBASE ERROR MESSAGES (বাংলা)
