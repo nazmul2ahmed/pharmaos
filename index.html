@@ -9,9 +9,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600&display=swap" rel="stylesheet" />
 
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-
   <style>
     body { font-family: 'Inter', 'Hind Siliguri', sans-serif; }
     .gradient-bg {
@@ -23,495 +20,779 @@
       border: 1px solid rgba(255,255,255,0.3);
     }
     .pulse-dot { animation: pulse 2s infinite; }
-    @keyframes pulse {
-      0%,100% { opacity:1; } 50% { opacity:0.4; }
-    }
-    .slide-up { animation: slideUp 0.5s ease-out; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .slide-up { animation: slideUp 0.4s ease-out; }
     @keyframes slideUp {
-      from { opacity:0; transform:translateY(30px); }
-      to   { opacity:1; transform:translateY(0); }
+      from{opacity:0;transform:translateY(24px)}
+      to{opacity:1;transform:translateY(0)}
     }
-    .spin { animation: spin 1s linear infinite; }
-    @keyframes spin {
-      from { transform:rotate(0deg); }
-      to   { transform:rotate(360deg); }
-    }
-    .fade-in { animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn {
-      from { opacity:0; } to { opacity:1; }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    input:focus { outline: none; }
+    .btn-primary {
+      background: linear-gradient(135deg, #1a73e8, #0d47a1);
     }
   </style>
 </head>
 
-<body class="h-full gradient-bg min-h-screen">
+<body class="gradient-bg min-h-screen">
 
   <!-- Toast -->
-  <div id="toast" class="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg opacity-0 transition-all duration-300 pointer-events-none"></div>
+  <div id="toast" class="fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm
+    font-medium shadow-lg transition-all duration-300 opacity-0 pointer-events-none max-w-xs"></div>
 
-  <!-- TOP STATUS BAR -->
+  <!-- TOP BAR -->
   <div class="flex items-center justify-between px-4 py-2 bg-black bg-opacity-20">
     <span class="text-white font-bold text-sm">💊 PharmaOS</span>
     <div class="flex items-center gap-2">
       <div id="online-dot" class="w-2 h-2 rounded-full bg-green-400 pulse-dot"></div>
       <span id="online-label" class="text-xs text-green-300">অনলাইন</span>
-      <span class="text-xs text-blue-200 ml-2">v1.0.0</span>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SCREEN 1: LOGIN                            -->
-  <!-- ══════════════════════════════════════════ -->
-  <div id="screen-login" class="screen hidden slide-up">
-    <div class="text-center px-6 pt-12 pb-6">
-      <div class="text-6xl mb-4">💊</div>
-      <h1 class="text-3xl font-bold text-white mb-2">PharmaOS</h1>
+  <!-- ════════════════════════════════════ -->
+  <!-- SCREEN: WELCOME                      -->
+  <!-- ════════════════════════════════════ -->
+  <div id="screen-welcome" class="screen hidden slide-up px-4 pt-10 pb-6">
+    <div class="text-center mb-8">
+      <div class="text-6xl mb-3">💊</div>
+      <h1 class="text-3xl font-bold text-white mb-1">PharmaOS</h1>
       <p class="text-blue-200 text-sm">স্মার্ট ফার্মেসি ম্যানেজমেন্ট সিস্টেম</p>
+      <p class="text-blue-300 text-xs mt-1">Offline-First • Cloud-Powered • Multi-Tenant</p>
     </div>
 
-    <div class="mx-4 glass-card rounded-2xl p-6 shadow-2xl">
-      <h2 class="text-lg font-bold text-gray-800 mb-1 text-center">স্বাগতম!</h2>
-      <p class="text-sm text-gray-500 text-center mb-6">আপনার Google Account দিয়ে লগইন করুন</p>
-
-      <!-- Google Sign-In Button -->
-      <button
-        id="google-signin-btn"
-        onclick="signInWithGoogle()"
-        class="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 hover:border-blue-400 hover:shadow-md text-gray-700 font-semibold py-3.5 px-4 rounded-xl transition-all">
-        <svg width="20" height="20" viewBox="0 0 48 48">
-          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-        </svg>
-        Google দিয়ে লগইন করুন
-      </button>
-
-      <div id="login-status" class="mt-4 text-center text-sm text-gray-500 hidden">
-        <span class="spin inline-block mr-2">⟳</span> যাচাই করছি...
-      </div>
-
-      <div id="login-error" class="mt-4 hidden">
-        <div class="bg-red-50 border border-red-200 rounded-xl p-3">
-          <p id="login-error-msg" class="text-red-600 text-sm text-center"></p>
-        </div>
-      </div>
-
+    <div class="glass-card rounded-2xl p-6 shadow-2xl">
       <!-- Features -->
-      <div class="grid grid-cols-2 gap-2 mt-6 pt-4 border-t border-gray-100">
-        <div class="text-center p-2">
-          <div class="text-xl mb-1">🧾</div>
-          <p class="text-xs text-gray-600 font-medium">POS বিলিং</p>
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="bg-blue-50 rounded-xl p-3 text-center">
+          <div class="text-2xl mb-1">🧾</div>
+          <p class="text-xs font-semibold text-blue-700">POS বিলিং</p>
+          <p class="text-xs text-gray-500">অফলাইনেও কাজ করে</p>
         </div>
-        <div class="text-center p-2">
-          <div class="text-xl mb-1">📦</div>
-          <p class="text-xs text-gray-600 font-medium">স্টক ট্র্যাকিং</p>
+        <div class="bg-green-50 rounded-xl p-3 text-center">
+          <div class="text-2xl mb-1">📦</div>
+          <p class="text-xs font-semibold text-green-700">স্টক ট্র্যাকিং</p>
+          <p class="text-xs text-gray-500">FEFO পদ্ধতিতে</p>
         </div>
-        <div class="text-center p-2">
-          <div class="text-xl mb-1">⏰</div>
-          <p class="text-xs text-gray-600 font-medium">মেয়াদ Alert</p>
+        <div class="bg-yellow-50 rounded-xl p-3 text-center">
+          <div class="text-2xl mb-1">⏰</div>
+          <p class="text-xs font-semibold text-yellow-700">মেয়াদ সতর্কতা</p>
+          <p class="text-xs text-gray-500">স্বয়ংক্রিয় alert</p>
         </div>
-        <div class="text-center p-2">
-          <div class="text-xl mb-1">📊</div>
-          <p class="text-xs text-gray-600 font-medium">রিপোর্ট</p>
+        <div class="bg-purple-50 rounded-xl p-3 text-center">
+          <div class="text-2xl mb-1">📊</div>
+          <p class="text-xs font-semibold text-purple-700">রিপোর্ট</p>
+          <p class="text-xs text-gray-500">দৈনিক/মাসিক</p>
         </div>
       </div>
+
+      <button onclick="showScreen('screen-login')"
+        class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md mb-3 transition-all hover:opacity-90">
+        🔐 লগইন করুন
+      </button>
+      <button onclick="showScreen('screen-register')"
+        class="w-full bg-white border-2 border-blue-200 hover:border-blue-400 text-blue-700
+          font-semibold py-3.5 rounded-xl transition-all">
+        ✨ বিনামূল্যে শুরু করুন (১৫ দিন)
+      </button>
     </div>
 
-    <div class="text-center py-4">
-      <p class="text-blue-300 text-xs">© 2026 PharmaOS — nazmul2ahmed</p>
-    </div>
+    <p class="text-center text-blue-300 text-xs mt-4">© 2026 PharmaOS — nazmul2ahmed</p>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SCREEN 2: LICENSE CHECK (Loading)          -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════ -->
+  <!-- SCREEN: LOGIN                        -->
+  <!-- ════════════════════════════════════ -->
+  <div id="screen-login" class="screen hidden slide-up px-4 pt-8 pb-6">
+    <div class="text-center mb-6">
+      <div class="text-4xl mb-2">🔐</div>
+      <h2 class="text-2xl font-bold text-white">লগইন</h2>
+      <p class="text-blue-200 text-sm">আপনার account-এ প্রবেশ করুন</p>
+    </div>
+
+    <div class="glass-card rounded-2xl p-6 shadow-2xl">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">ইমেইল</label>
+          <input id="login-email" type="email" placeholder="your@gmail.com"
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
+              text-sm transition-all" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড</label>
+          <div class="relative">
+            <input id="login-password" type="password" placeholder="••••••••"
+              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
+                text-sm transition-all pr-12" />
+            <button onclick="togglePassword('login-password')"
+              class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-lg">👁</button>
+          </div>
+        </div>
+
+        <button onclick="forgotPassword()"
+          class="text-xs text-blue-500 hover:text-blue-700 float-right">
+          পাসওয়ার্ড ভুলে গেছেন?
+        </button>
+
+        <div id="login-error" class="hidden bg-red-50 border border-red-200 rounded-xl p-3">
+          <p id="login-error-msg" class="text-red-600 text-sm"></p>
+        </div>
+
+        <button id="login-btn" onclick="doLogin()"
+          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md
+            transition-all hover:opacity-90 mt-2">
+          লগইন করুন →
+        </button>
+      </div>
+
+      <div class="border-t border-gray-100 mt-5 pt-4 text-center">
+        <p class="text-sm text-gray-500">Account নেই?
+          <button onclick="showScreen('screen-register')"
+            class="text-blue-600 font-semibold hover:underline">
+            বিনামূল্যে শুরু করুন
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <button onclick="showScreen('screen-welcome')"
+      class="w-full text-center text-blue-200 text-sm mt-4 hover:text-white">
+      ← ফিরে যান
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- SCREEN: REGISTER                     -->
+  <!-- ════════════════════════════════════ -->
+  <div id="screen-register" class="screen hidden slide-up px-4 pt-6 pb-6">
+    <div class="text-center mb-5">
+      <div class="text-4xl mb-2">✨</div>
+      <h2 class="text-2xl font-bold text-white">বিনামূল্যে শুরু করুন</h2>
+      <p class="text-blue-200 text-sm">১৫ দিনের ফ্রি ট্রায়াল — কোনো card লাগবে না</p>
+    </div>
+
+    <div class="glass-card rounded-2xl p-6 shadow-2xl">
+      <div class="space-y-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">আপনার নাম</label>
+          <input id="reg-name" type="text" placeholder="মো. রহিম উদ্দিন"
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
+              text-sm transition-all" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">ফার্মেসির নাম</label>
+          <input id="reg-pharmacy" type="text" placeholder="রহিম মেডিকেল হল"
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
+              text-sm transition-all" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">ইমেইল</label>
+          <input id="reg-email" type="email" placeholder="your@gmail.com"
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
+              text-sm transition-all" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড</label>
+          <div class="relative">
+            <input id="reg-password" type="password" placeholder="কমপক্ষে ৬ অক্ষর"
+              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
+                text-sm transition-all pr-12" />
+            <button onclick="togglePassword('reg-password')"
+              class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-lg">👁</button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড নিশ্চিত করুন</label>
+          <input id="reg-password2" type="password" placeholder="আবার টাইপ করুন"
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
+              text-sm transition-all" />
+        </div>
+
+        <div id="reg-error" class="hidden bg-red-50 border border-red-200 rounded-xl p-3">
+          <p id="reg-error-msg" class="text-red-600 text-sm"></p>
+        </div>
+
+        <!-- Trial Badge -->
+        <div class="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2">
+          <span class="text-xl">🎁</span>
+          <div>
+            <p class="text-sm font-semibold text-green-700">১৫ দিন সম্পূর্ণ বিনামূল্যে</p>
+            <p class="text-xs text-green-600">কোনো credit card লাগবে না</p>
+          </div>
+        </div>
+
+        <button id="reg-btn" onclick="doRegister()"
+          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md
+            transition-all hover:opacity-90">
+          ফ্রি ট্রায়াল শুরু করুন →
+        </button>
+      </div>
+
+      <div class="border-t border-gray-100 mt-4 pt-4 text-center">
+        <p class="text-sm text-gray-500">আগে থেকে account আছে?
+          <button onclick="showScreen('screen-login')"
+            class="text-blue-600 font-semibold hover:underline">লগইন করুন</button>
+        </p>
+      </div>
+    </div>
+
+    <button onclick="showScreen('screen-welcome')"
+      class="w-full text-center text-blue-200 text-sm mt-4 hover:text-white">
+      ← ফিরে যান
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- SCREEN: CHECKING LICENSE             -->
+  <!-- ════════════════════════════════════ -->
   <div id="screen-checking" class="screen hidden fade-in">
     <div class="flex flex-col items-center justify-center min-h-screen px-6">
       <div class="glass-card rounded-2xl p-8 text-center shadow-2xl w-full max-w-sm">
         <div class="text-5xl mb-4">🔐</div>
-        <h2 class="text-lg font-bold text-gray-800 mb-2">License যাচাই হচ্ছে</h2>
-        <p id="checking-email" class="text-sm text-gray-500 mb-4"></p>
-        <div class="flex justify-center gap-1">
-          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0ms"></div>
-          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay:150ms"></div>
-          <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay:300ms"></div>
+        <h2 class="text-lg font-bold text-gray-800 mb-2">যাচাই হচ্ছে...</h2>
+        <p id="checking-email" class="text-sm text-gray-500 mb-5"></p>
+        <div class="flex justify-center gap-1.5">
+          <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:0ms"></div>
+          <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:150ms"></div>
+          <div class="w-2.5 h-2.5 bg-blue-500 rounded-full animate-bounce" style="animation-delay:300ms"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SCREEN 3: BLOCKED (No License)             -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════ -->
+  <!-- SCREEN: TRIAL EXPIRED / PRICING      -->
+  <!-- ════════════════════════════════════ -->
+  <div id="screen-pricing" class="screen hidden slide-up px-4 pt-6 pb-6">
+    <div class="text-center mb-5">
+      <div class="text-4xl mb-2">🚀</div>
+      <h2 class="text-xl font-bold text-white">Plan বেছে নিন</h2>
+      <p class="text-blue-200 text-sm">আপনার ট্রায়াল শেষ হয়েছে</p>
+    </div>
+
+    <div class="space-y-3">
+      <!-- Monthly -->
+      <div onclick="selectPlan('MONTHLY')"
+        class="glass-card rounded-2xl p-5 shadow-xl cursor-pointer hover:shadow-2xl
+          transition-all border-2 border-transparent hover:border-blue-400" id="plan-MONTHLY">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <p class="font-bold text-gray-800">মাসিক প্ল্যান</p>
+            <p class="text-xs text-gray-500">প্রতি মাসে নবায়ন</p>
+          </div>
+          <div class="text-right">
+            <p class="text-2xl font-bold text-blue-600">৳৫০০</p>
+            <p class="text-xs text-gray-400">/মাস</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 mt-2">
+          <span class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">✅ সব features</span>
+          <span class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">✅ Offline POS</span>
+          <span class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">✅ Reports</span>
+        </div>
+      </div>
+
+      <!-- Yearly -->
+      <div onclick="selectPlan('YEARLY')"
+        class="glass-card rounded-2xl p-5 shadow-xl cursor-pointer hover:shadow-2xl
+          transition-all border-2 border-transparent hover:border-green-400 relative"
+        id="plan-YEARLY">
+        <div class="absolute -top-2 right-4 bg-green-500 text-white text-xs font-bold
+          px-3 py-0.5 rounded-full">সেরা মূল্য 🔥</div>
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <p class="font-bold text-gray-800">বার্ষিক প্ল্যান</p>
+            <p class="text-xs text-gray-500">১ বছরের জন্য</p>
+          </div>
+          <div class="text-right">
+            <p class="text-2xl font-bold text-green-600">৳৪৫০০</p>
+            <p class="text-xs text-gray-400">/বছর</p>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-1 mt-2">
+          <span class="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">✅ সব features</span>
+          <span class="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">✅ ২ মাস ফ্রি</span>
+          <span class="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">✅ Priority support</span>
+        </div>
+      </div>
+
+      <!-- Payment Info -->
+      <div id="payment-section" class="hidden glass-card rounded-2xl p-5 shadow-xl">
+        <p class="font-bold text-gray-800 mb-3">💳 পেমেন্ট করুন</p>
+        <div class="bg-blue-50 rounded-xl p-3 mb-3">
+          <p class="text-sm font-semibold text-blue-800">bKash / Nagad নম্বর:</p>
+          <p class="text-lg font-bold text-blue-600 mt-1">01XXXXXXXXX</p>
+          <p class="text-xs text-blue-500 mt-1">Send Money করুন</p>
+        </div>
+        <div class="space-y-2">
+          <input id="payment-txn" type="text" placeholder="Transaction ID (e.g. 8K3J2M1N)"
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4
+              py-2.5 text-sm transition-all" />
+          <button onclick="submitPayment()"
+            class="w-full btn-primary text-white font-semibold py-3 rounded-xl shadow-md
+              transition-all hover:opacity-90">
+            পেমেন্ট নিশ্চিত করুন →
+          </button>
+        </div>
+        <p class="text-xs text-gray-400 text-center mt-2">
+          পেমেন্ট verify হলে ২৪ ঘণ্টার মধ্যে activate হবে
+        </p>
+      </div>
+    </div>
+
+    <button onclick="signOut()"
+      class="w-full text-center text-blue-200 text-sm mt-4 hover:text-white">
+      লগআউট
+    </button>
+  </div>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- SCREEN: BLOCKED                      -->
+  <!-- ════════════════════════════════════ -->
   <div id="screen-blocked" class="screen hidden slide-up">
     <div class="flex flex-col items-center justify-center min-h-screen px-6">
       <div class="glass-card rounded-2xl p-8 text-center shadow-2xl w-full max-w-sm">
         <div class="text-5xl mb-4">🚫</div>
         <h2 class="text-xl font-bold text-red-600 mb-2">অ্যাক্সেস নেই</h2>
-        <p id="blocked-msg" class="text-sm text-gray-600 mb-2"></p>
-        <p id="blocked-email" class="text-xs text-gray-400 mb-6"></p>
-
+        <p id="blocked-msg" class="text-sm text-gray-600 mb-5"></p>
         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-3 mb-4 text-left">
-          <p class="text-xs text-yellow-700 font-semibold mb-1">📞 সাহায্যের জন্য যোগাযোগ করুন:</p>
-          <p class="text-xs text-yellow-600">Admin: nazmul2ahmed@gmail.com</p>
+          <p class="text-xs text-yellow-700 font-semibold">📞 যোগাযোগ করুন:</p>
+          <p class="text-xs text-yellow-600 mt-1">nazmul2ahmed@gmail.com</p>
         </div>
-
-        <button
-          onclick="signOut()"
-          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 rounded-xl text-sm transition-all">
+        <button onclick="signOut()"
+          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium
+            py-2.5 rounded-xl text-sm transition-all">
           🔄 অন্য Account দিয়ে চেষ্টা করুন
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- SCREEN 4: DASHBOARD (Authenticated)        -->
-  <!-- ══════════════════════════════════════════ -->
+  <!-- ════════════════════════════════════ -->
+  <!-- SCREEN: DASHBOARD                    -->
+  <!-- ════════════════════════════════════ -->
   <div id="screen-dashboard" class="screen hidden slide-up">
 
     <!-- Header -->
     <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
       <div>
-        <p class="text-white font-bold text-sm" id="dash-pharmacy-name">Loading...</p>
-        <p class="text-blue-200 text-xs" id="dash-user-email"></p>
+        <p class="text-white font-bold text-sm" id="dash-pharmacy"></p>
+        <p class="text-blue-200 text-xs" id="dash-email"></p>
       </div>
       <div class="flex items-center gap-2">
-        <span id="dash-trial-badge" class="hidden bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-0.5 rounded-full"></span>
-        <button onclick="signOut()" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-xs px-3 py-1.5 rounded-lg transition-all">
+        <span id="dash-badge" class="hidden text-xs font-bold px-2 py-0.5 rounded-full"></span>
+        <button onclick="signOut()"
+          class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-xs
+            px-3 py-1.5 rounded-lg transition-all">
           লগআউট
         </button>
       </div>
     </div>
 
-    <!-- Welcome Card -->
-    <div class="mx-4 mt-4 glass-card rounded-2xl p-5 shadow-xl">
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">💊</div>
-        <div>
-          <p class="font-bold text-gray-800" id="dash-welcome">স্বাগতম!</p>
-          <p class="text-xs text-gray-500" id="dash-status-text"></p>
+    <div class="px-4 mt-4 pb-6 space-y-4">
+
+      <!-- Welcome -->
+      <div class="glass-card rounded-2xl p-4 shadow-xl">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">💊</div>
+          <div>
+            <p class="font-bold text-gray-800" id="dash-welcome"></p>
+            <p class="text-xs text-gray-500" id="dash-status"></p>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-blue-50 rounded-xl p-3 text-center">
+            <p class="text-xl font-bold text-blue-600" id="stat-drugs">—</p>
+            <p class="text-xs text-gray-500">ওষুধ</p>
+          </div>
+          <div class="bg-green-50 rounded-xl p-3 text-center">
+            <p class="text-xl font-bold text-green-600" id="stat-stock">—</p>
+            <p class="text-xs text-gray-500">স্টক ব্যাচ</p>
+          </div>
+          <div class="bg-red-50 rounded-xl p-3 text-center">
+            <p class="text-xl font-bold text-red-600" id="stat-alerts">—</p>
+            <p class="text-xs text-gray-500">Alerts</p>
+          </div>
         </div>
       </div>
 
-      <!-- Quick Stats -->
-      <div class="grid grid-cols-3 gap-2 mb-4">
-        <div class="bg-blue-50 rounded-xl p-3 text-center">
-          <p class="text-xl font-bold text-blue-600" id="stat-drugs">—</p>
-          <p class="text-xs text-gray-500">ওষুধ</p>
-        </div>
-        <div class="bg-green-50 rounded-xl p-3 text-center">
-          <p class="text-xl font-bold text-green-600" id="stat-stock">—</p>
-          <p class="text-xs text-gray-500">স্টক ব্যাচ</p>
-        </div>
-        <div class="bg-red-50 rounded-xl p-3 text-center">
-          <p class="text-xl font-bold text-red-600" id="stat-alerts">—</p>
-          <p class="text-xs text-gray-500">Alerts</p>
-        </div>
-      </div>
-
-      <!-- Menu Grid -->
+      <!-- Menu -->
       <div class="grid grid-cols-2 gap-3">
         <button onclick="showToast('POS — Phase 5-এ আসছে!','info')"
-          class="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-4 text-left transition-all">
-          <div class="text-2xl mb-1">🧾</div>
+          class="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl p-4 text-left
+            transition-all shadow-lg">
+          <div class="text-2xl mb-2">🧾</div>
           <p class="font-semibold text-sm">POS বিলিং</p>
-          <p class="text-xs text-blue-200">আসছে শীঘ্রই</p>
+          <p class="text-xs text-blue-200 mt-0.5">আসছে শীঘ্রই</p>
         </button>
         <button onclick="showToast('Inventory — Phase 6-এ আসছে!','info')"
-          class="bg-green-600 hover:bg-green-700 text-white rounded-xl p-4 text-left transition-all">
-          <div class="text-2xl mb-1">📦</div>
+          class="bg-green-600 hover:bg-green-700 text-white rounded-2xl p-4 text-left
+            transition-all shadow-lg">
+          <div class="text-2xl mb-2">📦</div>
           <p class="font-semibold text-sm">ইনভেন্টরি</p>
-          <p class="text-xs text-green-200">আসছে শীঘ্রই</p>
+          <p class="text-xs text-green-200 mt-0.5">আসছে শীঘ্রই</p>
         </button>
-        <button onclick="loadDashboardStats()"
-          class="bg-purple-600 hover:bg-purple-700 text-white rounded-xl p-4 text-left transition-all">
-          <div class="text-2xl mb-1">🔄</div>
+        <button onclick="loadStats()"
+          class="bg-purple-600 hover:bg-purple-700 text-white rounded-2xl p-4 text-left
+            transition-all shadow-lg">
+          <div class="text-2xl mb-2">🔄</div>
           <p class="font-semibold text-sm">Refresh</p>
-          <p class="text-xs text-purple-200">Stats আপডেট</p>
+          <p class="text-xs text-purple-200 mt-0.5">Stats আপডেট</p>
         </button>
         <button onclick="showToast('Reports — Phase 7-এ আসছে!','info')"
-          class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl p-4 text-left transition-all">
-          <div class="text-2xl mb-1">📊</div>
+          class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-2xl p-4 text-left
+            transition-all shadow-lg">
+          <div class="text-2xl mb-2">📊</div>
           <p class="font-semibold text-sm">রিপোর্ট</p>
-          <p class="text-xs text-yellow-100">আসছে শীঘ্রই</p>
+          <p class="text-xs text-yellow-100 mt-0.5">আসছে শীঘ্রই</p>
         </button>
       </div>
-    </div>
 
-    <!-- Expiry Alerts Section -->
-    <div class="mx-4 mt-4 mb-6">
-      <div id="alerts-container" class="hidden glass-card rounded-2xl p-4 shadow-lg">
+      <!-- Alerts -->
+      <div id="alerts-box" class="hidden glass-card rounded-2xl p-4 shadow-lg">
         <p class="font-bold text-gray-800 mb-3 text-sm">⚠️ Expiry Alerts</p>
         <div id="alerts-list" class="space-y-2"></div>
       </div>
+
     </div>
-
   </div>
-  <!-- END DASHBOARD -->
 
-  <script>
-  // ═══════════════════════════════════════════════════════
-  // CONFIGURATION
-  // ═══════════════════════════════════════════════════════
-  const CONFIG = {
-    GAS_API_URL   : "https://script.google.com/macros/s/AKfycbxsRb_liX3Owb9uQAG4Ma_--BuHKsy5CGctxKO4y4laEt4paVuYas5qtaUuG0bZhkyC1A/exec",
-    GOOGLE_CLIENT_ID : "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE",
-    APP_VERSION   : "1.0.0"
+  <!-- ════════════════════════════════════════════════════ -->
+  <!-- FIREBASE + APP LOGIC                                 -->
+  <!-- ════════════════════════════════════════════════════ -->
+  <script type="module">
+  import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword,
+           signInWithEmailAndPassword, signOut as fbSignOut,
+           onAuthStateChanged, sendPasswordResetEmail,
+           updateProfile }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  // ── Firebase Config ──
+  const firebaseConfig = {
+    apiKey           : "AIzaSyCCbusbbjWQYJT8IhLfvwsMOF6ntP5nRvY",
+    authDomain       : "pharmaos-aedb6.firebaseapp.com",
+    projectId        : "pharmaos-aedb6",
+    storageBucket    : "pharmaos-aedb6.firebasestorage.app",
+    messagingSenderId: "474857828578",
+    appId            : "1:474857828578:web:6e815f2739b3fbadc3aebb"
   };
 
-  // ═══════════════════════════════════════════════════════
-  // APP STATE
-  // ═══════════════════════════════════════════════════════
-  let APP = {
-    user         : null,   // { email, name, picture, id_token }
-    license      : null,   // { valid, status, daysLeft, pharmacy_name }
-    isOnline     : navigator.onLine
-  };
+  const fbApp  = initializeApp(firebaseConfig);
+  const auth   = getAuth(fbApp);
 
-  // ═══════════════════════════════════════════════════════
-  // API CLIENT
-  // ═══════════════════════════════════════════════════════
-  const API = {
-    async get(action, params = {}) {
-      const url = new URL(CONFIG.GAS_API_URL);
-      url.searchParams.set("action", action);
-      Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
-      const res = await fetch(url.toString());
-      return res.json();
-    },
-    async post(action, body = {}) {
-      const res = await fetch(CONFIG.GAS_API_URL, {
-        method  : "POST",
-        headers : { "Content-Type": "application/json" },
-        body    : JSON.stringify({ action, ...body })
-      });
-      return res.json();
-    }
-  };
+  // ── GAS API URL ──
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxsRb_liX3Owb9uQAG4Ma_--BuHKsy5CGctxKO4y4laEt4paVuYas5qtaUuG0bZhkyC1A/exec";
 
-  // ═══════════════════════════════════════════════════════
+  // ── App State ──
+  window.APP = { user: null, license: null };
+
+  // ════════════════════════════════
   // SCREEN MANAGER
-  // ═══════════════════════════════════════════════════════
-  function showScreen(id) {
+  // ════════════════════════════════
+  window.showScreen = (id) => {
     document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
     document.getElementById(id).classList.remove("hidden");
-  }
+  };
 
-  // ═══════════════════════════════════════════════════════
+  // ════════════════════════════════
   // TOAST
-  // ═══════════════════════════════════════════════════════
-  function showToast(msg, type = "success") {
-    const toast = document.getElementById("toast");
-    const colors = {
-      success : "bg-green-500",
-      error   : "bg-red-500",
-      warning : "bg-yellow-500",
-      info    : "bg-blue-500"
-    };
-    toast.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg transition-all duration-300 ${colors[type]}`;
-    toast.textContent = msg;
-    toast.style.opacity = "1";
-    setTimeout(() => { toast.style.opacity = "0"; }, 3000);
+  // ════════════════════════════════
+  window.showToast = (msg, type = "success") => {
+    const el = document.getElementById("toast");
+    const colors = { success:"bg-green-500", error:"bg-red-500",
+                     warning:"bg-yellow-500", info:"bg-blue-500" };
+    el.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm
+      font-medium shadow-lg transition-all duration-300 max-w-xs ${colors[type]}`;
+    el.textContent = msg;
+    el.style.opacity = "1";
+    setTimeout(() => { el.style.opacity = "0"; }, 3500);
+  };
+
+  // ════════════════════════════════
+  // PASSWORD TOGGLE
+  // ════════════════════════════════
+  window.togglePassword = (id) => {
+    const el = document.getElementById(id);
+    el.type = el.type === "password" ? "text" : "password";
+  };
+
+  // ════════════════════════════════
+  // GAS API
+  // ════════════════════════════════
+  async function gasGet(action, params = {}) {
+    const url = new URL(GAS_URL);
+    url.searchParams.set("action", action);
+    Object.entries(params).forEach(([k,v]) => url.searchParams.set(k, v));
+    const res = await fetch(url.toString());
+    return res.json();
   }
 
-  // ═══════════════════════════════════════════════════════
-  // GOOGLE SIGN-IN
-  // ═══════════════════════════════════════════════════════
-  function initGoogleSignIn() {
-    if (typeof google === "undefined" || !CONFIG.GOOGLE_CLIENT_ID || 
-        CONFIG.GOOGLE_CLIENT_ID === "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE") {
-      // DEV MODE — skip OAuth, use stored session
-      const saved = sessionStorage.getItem("pharmaos_user");
-      if (saved) {
-        APP.user = JSON.parse(saved);
-        validateAndProceed();
-      } else {
-        showScreen("screen-login");
-      }
-      return;
+  // ════════════════════════════════
+  // REGISTER
+  // ════════════════════════════════
+  window.doRegister = async () => {
+    const name      = document.getElementById("reg-name").value.trim();
+    const pharmacy  = document.getElementById("reg-pharmacy").value.trim();
+    const email     = document.getElementById("reg-email").value.trim();
+    const pass      = document.getElementById("reg-password").value;
+    const pass2     = document.getElementById("reg-password2").value;
+    const errBox    = document.getElementById("reg-error");
+    const errMsg    = document.getElementById("reg-error-msg");
+    const btn       = document.getElementById("reg-btn");
+
+    // Validation
+    if (!name || !pharmacy || !email || !pass) {
+      errMsg.textContent = "সব তথ্য পূরণ করুন।";
+      errBox.classList.remove("hidden"); return;
+    }
+    if (pass.length < 6) {
+      errMsg.textContent = "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে।";
+      errBox.classList.remove("hidden"); return;
+    }
+    if (pass !== pass2) {
+      errMsg.textContent = "পাসওয়ার্ড দুটো মিলছে না।";
+      errBox.classList.remove("hidden"); return;
     }
 
-    google.accounts.id.initialize({
-      client_id : CONFIG.GOOGLE_CLIENT_ID,
-      callback  : handleGoogleCallback,
-      auto_select: false
-    });
-  }
-
-  function signInWithGoogle() {
-    // DEV MODE — direct email login for testing
-    if (!CONFIG.GOOGLE_CLIENT_ID || 
-        CONFIG.GOOGLE_CLIENT_ID === "PASTE_YOUR_GOOGLE_CLIENT_ID_HERE") {
-      const email = prompt("DEV MODE — আপনার Gmail টাইপ করুন:");
-      if (!email) return;
-      APP.user = {
-        email   : email.trim(),
-        name    : email.split("@")[0],
-        picture : "",
-        dev_mode: true
-      };
-      sessionStorage.setItem("pharmaos_user", JSON.stringify(APP.user));
-      validateAndProceed();
-      return;
-    }
-
-    google.accounts.id.prompt();
-  }
-
-  function handleGoogleCallback(response) {
-    // Decode JWT token
-    const payload = JSON.parse(atob(response.credential.split(".")[1]));
-    APP.user = {
-      email    : payload.email,
-      name     : payload.name,
-      picture  : payload.picture,
-      id_token : response.credential
-    };
-    sessionStorage.setItem("pharmaos_user", JSON.stringify(APP.user));
-    validateAndProceed();
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // LICENSE VALIDATION
-  // ═══════════════════════════════════════════════════════
-  async function validateAndProceed() {
-    showScreen("screen-checking");
-    document.getElementById("checking-email").textContent = APP.user.email;
+    errBox.classList.add("hidden");
+    btn.textContent = "⟳ তৈরি হচ্ছে...";
+    btn.disabled    = true;
 
     try {
-      // Call GAS API to validate license
-      const result = await API.get("validateLicense", {
-        email      : APP.user.email,
-        licenseKey : localStorage.getItem("pharmaos_license_key") || ""
+      // Firebase-এ user তৈরি
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: name });
+
+      // Master Sheet-এ trial entry যোগ
+      await gasGet("registerTrial", {
+        email        : email,
+        name         : name,
+        pharmacy_name: pharmacy
       });
 
-      APP.license = result;
+      showToast("✅ Registration সফল! ১৫ দিনের ট্রায়াল শুরু হয়েছে।", "success");
+
+    } catch (err) {
+      btn.textContent = "ফ্রি ট্রায়াল শুরু করুন →";
+      btn.disabled    = false;
+      errMsg.textContent = _firebaseError(err.code);
+      errBox.classList.remove("hidden");
+    }
+  };
+
+  // ════════════════════════════════
+  // LOGIN
+  // ════════════════════════════════
+  window.doLogin = async () => {
+    const email  = document.getElementById("login-email").value.trim();
+    const pass   = document.getElementById("login-password").value;
+    const errBox = document.getElementById("login-error");
+    const errMsg = document.getElementById("login-error-msg");
+    const btn    = document.getElementById("login-btn");
+
+    if (!email || !pass) {
+      errMsg.textContent = "ইমেইল এবং পাসওয়ার্ড দিন।";
+      errBox.classList.remove("hidden"); return;
+    }
+
+    errBox.classList.add("hidden");
+    btn.textContent = "⟳ লগইন হচ্ছে...";
+    btn.disabled    = true;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+      // onAuthStateChanged handle করবে
+    } catch (err) {
+      btn.textContent = "লগইন করুন →";
+      btn.disabled    = false;
+      errMsg.textContent = _firebaseError(err.code);
+      errBox.classList.remove("hidden");
+    }
+  };
+
+  // ════════════════════════════════
+  // FORGOT PASSWORD
+  // ════════════════════════════════
+  window.forgotPassword = async () => {
+    const email = document.getElementById("login-email").value.trim();
+    if (!email) {
+      showToast("আগে ইমেইল টাইপ করুন", "warning"); return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showToast("✅ Password reset email পাঠানো হয়েছে!", "success");
+    } catch (err) {
+      showToast("Email পাঠানো যায়নি। ইমেইল সঠিক আছে?", "error");
+    }
+  };
+
+  // ════════════════════════════════
+  // SIGN OUT
+  // ════════════════════════════════
+  window.signOut = async () => {
+    await fbSignOut(auth);
+    window.APP = { user: null, license: null };
+    localStorage.removeItem("pharmaos_license");
+    showScreen("screen-welcome");
+    showToast("লগআউট সফল", "info");
+  };
+
+  // ════════════════════════════════
+  // AUTH STATE LISTENER
+  // ════════════════════════════════
+  onAuthStateChanged(auth, async (fbUser) => {
+    if (!fbUser) {
+      showScreen("screen-welcome"); return;
+    }
+
+    // User logged in — validate license
+    window.APP.user = {
+      email : fbUser.email,
+      name  : fbUser.displayName || fbUser.email.split("@")[0],
+      uid   : fbUser.uid
+    };
+
+    showScreen("screen-checking");
+    document.getElementById("checking-email").textContent = fbUser.email;
+
+    try {
+      const result = await gasGet("validateLicense", {
+        email      : fbUser.email,
+        licenseKey : ""
+      });
+
+      window.APP.license = result;
 
       if (result.valid) {
-        // Save license info
         localStorage.setItem("pharmaos_license", JSON.stringify(result));
-        loadDashboard();
+        loadDashboard(result);
+      } else if (result.reason === "TRIAL_EXPIRED") {
+        showScreen("screen-pricing");
       } else {
-        showBlockedScreen(result);
+        // New user — check if trial just started
+        if (result.reason === "EMAIL_NOT_REGISTERED") {
+          showScreen("screen-pricing");
+        } else {
+          document.getElementById("blocked-msg").textContent = result.message;
+          showScreen("screen-blocked");
+        }
       }
-
     } catch (err) {
-      // Network error — check cached license
+      // Offline fallback
       const cached = localStorage.getItem("pharmaos_license");
       if (cached) {
-        APP.license = JSON.parse(cached);
-        showToast("Offline mode — cached license ব্যবহার হচ্ছে", "warning");
-        loadDashboard();
+        window.APP.license = JSON.parse(cached);
+        loadDashboard(window.APP.license);
+        showToast("Offline mode চলছে", "warning");
       } else {
-        showBlockedScreen({
-          message: "সার্ভারে সংযোগ হচ্ছে না। Internet check করুন।"
-        });
+        document.getElementById("blocked-msg").textContent =
+          "Internet সংযোগ নেই।";
+        showScreen("screen-blocked");
       }
     }
-  }
+  });
 
-  // ═══════════════════════════════════════════════════════
-  // DASHBOARD LOADER
-  // ═══════════════════════════════════════════════════════
-  function loadDashboard() {
+  // ════════════════════════════════
+  // DASHBOARD
+  // ════════════════════════════════
+  function loadDashboard(license) {
     showScreen("screen-dashboard");
+    const user = window.APP.user;
 
-    const license = APP.license;
-    const user    = APP.user;
+    const pharmacyName = license.pharmacy_name || "আপনার ফার্মেসি";
+    document.getElementById("dash-pharmacy").textContent = "🏥 " + pharmacyName;
+    document.getElementById("dash-email").textContent    = user.email;
+    document.getElementById("dash-welcome").textContent  = `স্বাগতম, ${user.name}!`;
 
-    // Set pharmacy name
-    const pharmacyName = license.pharmacy_name || license.data?.pharmacy_name || "আপনার ফার্মেসি";
-    document.getElementById("dash-pharmacy-name").textContent = "🏥 " + pharmacyName;
-    document.getElementById("dash-user-email").textContent    = user.email;
-    document.getElementById("dash-welcome").textContent       = `স্বাগতম, ${user.name}!`;
-
-    // Trial badge
+    // Badge
+    const badge = document.getElementById("dash-badge");
     if (license.status === "TRIAL" || license.daysLeft !== undefined) {
-      const daysLeft = license.daysLeft ?? license.data?.daysLeft ?? "?";
-      const badge    = document.getElementById("dash-trial-badge");
-      badge.textContent = `Trial: ${daysLeft} দিন`;
+      const days = license.daysLeft ?? "?";
+      badge.textContent = `Trial: ${days} দিন`;
+      badge.className   = "text-xs font-bold px-2 py-0.5 rounded-full bg-yellow-400 text-yellow-900";
       badge.classList.remove("hidden");
-      document.getElementById("dash-status-text").textContent = `Trial চলছে — ${daysLeft} দিন বাকি`;
+      document.getElementById("dash-status").textContent = `Trial চলছে — ${days} দিন বাকি`;
     } else {
-      document.getElementById("dash-status-text").textContent = "Subscription সচল ✅";
+      document.getElementById("dash-status").textContent = "Subscription সচল ✅";
     }
 
-    // Load stats
-    loadDashboardStats();
-    showToast("লগইন সফল! ✅", "success");
+    loadStats();
+    showToast(`স্বাগতম ${user.name}! ✅`, "success");
   }
 
-  async function loadDashboardStats() {
+  window.loadStats = async () => {
     try {
-      const [drugsRes, stockRes, alertsRes] = await Promise.all([
-        API.get("getDrugs",     {}),
-        API.get("getStock",     {}),
-        API.get("getStockAlert",{})
+      const [d, s, a] = await Promise.all([
+        gasGet("getDrugs", {}),
+        gasGet("getStock", {}),
+        gasGet("getStockAlert", {})
       ]);
+      document.getElementById("stat-drugs").textContent  = d.data?.length  ?? "—";
+      document.getElementById("stat-stock").textContent  = s.data?.length  ?? "—";
+      document.getElementById("stat-alerts").textContent = a.data?.length  ?? "0";
 
-      document.getElementById("stat-drugs").textContent =
-        drugsRes.data?.length  ?? "—";
-      document.getElementById("stat-stock").textContent =
-        stockRes.data?.length  ?? "—";
-      document.getElementById("stat-alerts").textContent =
-        alertsRes.data?.length ?? "0";
-
-      // Show alerts if any
-      if (alertsRes.data?.length > 0) {
-        const container = document.getElementById("alerts-container");
-        const list      = document.getElementById("alerts-list");
-        container.classList.remove("hidden");
-        list.innerHTML  = alertsRes.data.slice(0, 5).map(a => `
+      if (a.data?.length > 0) {
+        document.getElementById("alerts-box").classList.remove("hidden");
+        document.getElementById("alerts-list").innerHTML = a.data.slice(0,5).map(x => `
           <div class="flex items-center justify-between bg-red-50 rounded-lg p-2">
             <div>
-              <p class="text-xs font-semibold text-gray-800">${a.brand_name}</p>
-              <p class="text-xs text-gray-500">Batch: ${a.batch_number}</p>
+              <p class="text-xs font-semibold text-gray-800">${x.brand_name}</p>
+              <p class="text-xs text-gray-400">Batch: ${x.batch_number}</p>
             </div>
-            <div class="text-right">
-              <p class="text-xs font-bold ${a.days_to_expiry < 0 ? 'text-red-600' : 'text-yellow-600'}">
-                ${a.days_to_expiry < 0 ? 'মেয়াদ শেষ' : a.days_to_expiry + ' দিন'}
-              </p>
-              <p class="text-xs text-gray-400">${a.expiry_date}</p>
-            </div>
+            <p class="text-xs font-bold ${x.days_to_expiry < 0 ? 'text-red-600':'text-yellow-600'}">
+              ${x.days_to_expiry < 0 ? 'মেয়াদ শেষ' : x.days_to_expiry+' দিন'}
+            </p>
           </div>`).join("");
       }
+    } catch(e) { console.warn("Stats error:", e); }
+  };
 
-    } catch (err) {
-      console.warn("Stats load failed:", err);
-    }
+  // ════════════════════════════════
+  // PRICING / PLAN
+  // ════════════════════════════════
+  window.selectPlan = (plan) => {
+    ["MONTHLY","YEARLY"].forEach(p => {
+      const el = document.getElementById("plan-"+p);
+      el.classList.toggle("border-blue-400",  p === plan && plan === "MONTHLY");
+      el.classList.toggle("border-green-400", p === plan && plan === "YEARLY");
+      el.classList.toggle("border-transparent", p !== plan);
+    });
+    localStorage.setItem("selected_plan", plan);
+    document.getElementById("payment-section").classList.remove("hidden");
+  };
+
+  window.submitPayment = () => {
+    const txn  = document.getElementById("payment-txn").value.trim();
+    const plan = localStorage.getItem("selected_plan") || "MONTHLY";
+    if (!txn) { showToast("Transaction ID দিন", "warning"); return; }
+    showToast(`✅ আপনার payment request পাঠানো হয়েছে! (${plan}) ২৪ ঘণ্টার মধ্যে activate হবে।`, "success");
+  };
+
+  // ════════════════════════════════
+  // FIREBASE ERROR MESSAGES (বাংলা)
+  // ════════════════════════════════
+  function _firebaseError(code) {
+    const map = {
+      "auth/email-already-in-use"   : "এই email দিয়ে আগেই account আছে। লগইন করুন।",
+      "auth/invalid-email"          : "সঠিক email দিন।",
+      "auth/weak-password"          : "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে।",
+      "auth/user-not-found"         : "এই email দিয়ে কোনো account নেই।",
+      "auth/wrong-password"         : "পাসওয়ার্ড ভুল।",
+      "auth/invalid-credential"     : "ইমেইল বা পাসওয়ার্ড ভুল।",
+      "auth/too-many-requests"      : "অনেকবার চেষ্টা করা হয়েছে। কিছুক্ষণ পরে চেষ্টা করুন।",
+      "auth/network-request-failed" : "Internet সংযোগ নেই।"
+    };
+    return map[code] || "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।";
   }
 
-  // ═══════════════════════════════════════════════════════
-  // BLOCKED SCREEN
-  // ═══════════════════════════════════════════════════════
-  function showBlockedScreen(result) {
-    showScreen("screen-blocked");
-    document.getElementById("blocked-msg").textContent   =
-      result.message || "আপনার account authorized নয়।";
-    document.getElementById("blocked-email").textContent =
-      APP.user?.email || "";
-  }
-
-  // ═══════════════════════════════════════════════════════
-  // SIGN OUT
-  // ═══════════════════════════════════════════════════════
-  function signOut() {
-    APP.user    = null;
-    APP.license = null;
-    sessionStorage.removeItem("pharmaos_user");
-    localStorage.removeItem("pharmaos_license");
-    showScreen("screen-login");
-    showToast("লগআউট সফল", "info");
-  }
-
-  // ═══════════════════════════════════════════════════════
+  // ════════════════════════════════
   // ONLINE STATUS
-  // ═══════════════════════════════════════════════════════
-  function updateOnlineStatus() {
+  // ════════════════════════════════
+  function updateOnline() {
     const dot   = document.getElementById("online-dot");
     const label = document.getElementById("online-label");
-    APP.isOnline = navigator.onLine;
     if (navigator.onLine) {
       dot.className     = "w-2 h-2 rounded-full bg-green-400 pulse-dot";
       label.textContent = "অনলাইন";
@@ -522,36 +803,17 @@
       label.className   = "text-xs text-yellow-300";
     }
   }
+  window.addEventListener("online",  updateOnline);
+  window.addEventListener("offline", updateOnline);
+  updateOnline();
 
-  // ═══════════════════════════════════════════════════════
+  // ════════════════════════════════
   // SERVICE WORKER
-  // ═══════════════════════════════════════════════════════
-  async function registerSW() {
-    if ("serviceWorker" in navigator) {
-      try {
-        await navigator.serviceWorker.register("sw.js");
-      } catch(e) {
-        console.warn("SW failed:", e);
-      }
-    }
+  // ════════════════════════════════
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(()=>{});
   }
 
-  // ═══════════════════════════════════════════════════════
-  // GAS — validateLicense endpoint যোগ করতে হবে
-  // ═══════════════════════════════════════════════════════
-  // Code.gs এ route যোগ করতে হবে — পরের step এ করব
-
-  // ═══════════════════════════════════════════════════════
-  // APP INIT
-  // ═══════════════════════════════════════════════════════
-  document.addEventListener("DOMContentLoaded", () => {
-    updateOnlineStatus();
-    window.addEventListener("online",  updateOnlineStatus);
-    window.addEventListener("offline", updateOnlineStatus);
-    registerSW();
-    initGoogleSignIn();
-  });
   </script>
-
 </body>
 </html>
