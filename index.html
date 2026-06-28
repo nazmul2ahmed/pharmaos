@@ -458,7 +458,167 @@
 
     </div>
   </div>
+<!-- ════════════════════════════════════ -->
+  <!-- SCREEN: POS                          -->
+  <!-- ════════════════════════════════════ -->
+  <div id="screen-pos" class="screen hidden">
 
+    <!-- POS Header -->
+    <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
+      <button onclick="showScreen('screen-dashboard')"
+        class="text-white text-sm flex items-center gap-1">
+        ← ফিরে যান
+      </button>
+      <span class="text-white font-bold text-sm">🧾 POS বিলিং</span>
+      <button onclick="clearCart()"
+        class="bg-red-500 bg-opacity-80 text-white text-xs px-3 py-1.5 rounded-lg">
+        🗑️ Clear
+      </button>
+    </div>
+
+    <div class="px-4 pt-3 pb-24 space-y-3">
+
+      <!-- Search Bar -->
+      <div class="glass-card rounded-2xl p-3 shadow-lg">
+        <div class="relative">
+          <input
+            id="drug-search"
+            type="text"
+            placeholder="ওষুধের নাম লিখুন... (Napa, Amoxi...)"
+            oninput="searchDrugs(this.value)"
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl
+              px-4 py-3 pr-10 text-sm transition-all"
+          />
+          <span class="absolute right-3 top-3 text-gray-400 text-lg">🔍</span>
+        </div>
+
+        <!-- Search Results -->
+        <div id="search-results" class="hidden mt-2 space-y-1 max-h-60 overflow-y-auto"></div>
+      </div>
+
+      <!-- Cart -->
+      <div class="glass-card rounded-2xl p-4 shadow-lg">
+        <div class="flex items-center justify-between mb-3">
+          <p class="font-bold text-gray-800 text-sm">🛒 Cart</p>
+          <span id="cart-count" class="bg-blue-100 text-blue-700 text-xs font-bold
+            px-2 py-0.5 rounded-full">0 items</span>
+        </div>
+
+        <!-- Cart Items -->
+        <div id="cart-items" class="space-y-2 min-h-12">
+          <p id="cart-empty-msg" class="text-xs text-gray-400 text-center py-3">
+            Cart খালি — ওষুধ search করুন
+          </p>
+        </div>
+
+        <!-- Cart Total -->
+        <div id="cart-total-section" class="hidden border-t border-gray-100 mt-3 pt-3">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm text-gray-600">Subtotal:</span>
+            <span id="cart-subtotal" class="font-bold text-gray-800">৳0</span>
+          </div>
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-sm text-gray-600">Discount:</span>
+            <span id="cart-discount" class="font-medium text-red-500">-৳0</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-bold text-gray-800">Total:</span>
+            <span id="cart-total" class="text-lg font-bold text-blue-600">৳0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Info (Optional) -->
+      <div class="glass-card rounded-2xl p-4 shadow-lg">
+        <p class="font-bold text-gray-800 text-sm mb-3">👤 ক্রেতার তথ্য (ঐচ্ছিক)</p>
+        <div class="grid grid-cols-2 gap-2">
+          <input id="customer-name" type="text" placeholder="নাম"
+            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3
+              py-2 text-sm transition-all" />
+          <input id="customer-phone" type="tel" placeholder="ফোন"
+            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3
+              py-2 text-sm transition-all" />
+        </div>
+      </div>
+
+      <!-- Payment Section -->
+      <div class="glass-card rounded-2xl p-4 shadow-lg">
+        <p class="font-bold text-gray-800 text-sm mb-3">💳 পেমেন্ট</p>
+
+        <!-- Payment Method -->
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <button onclick="selectPayment('CASH')" id="pay-CASH"
+            class="payment-btn active-payment bg-green-500 text-white text-xs
+              font-semibold py-2 rounded-xl transition-all">
+            💵 Cash
+          </button>
+          <button onclick="selectPayment('BKASH')" id="pay-BKASH"
+            class="payment-btn bg-gray-100 text-gray-600 text-xs
+              font-semibold py-2 rounded-xl transition-all">
+            📱 bKash
+          </button>
+          <button onclick="selectPayment('NAGAD')" id="pay-NAGAD"
+            class="payment-btn bg-gray-100 text-gray-600 text-xs
+              font-semibold py-2 rounded-xl transition-all">
+            📱 Nagad
+          </button>
+        </div>
+
+        <!-- Amount Paid -->
+        <div class="space-y-2">
+          <div class="relative">
+            <span class="absolute left-3 top-3 text-gray-500 font-bold">৳</span>
+            <input id="amount-paid" type="number" placeholder="প্রদত্ত টাকা"
+              oninput="calcChange()"
+              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl
+                pl-7 pr-4 py-3 text-sm transition-all" />
+          </div>
+          <div class="flex justify-between items-center bg-blue-50 rounded-xl px-4 py-2">
+            <span class="text-sm text-gray-600">ফেরত:</span>
+            <span id="change-display" class="font-bold text-blue-600">৳0</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Fixed Bottom — Checkout Button -->
+    <div class="fixed bottom-0 left-0 right-0 px-4 py-3 bg-white border-t border-gray-200 shadow-lg">
+      <button id="checkout-btn" onclick="checkout()"
+        class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-md
+          transition-all hover:opacity-90 text-base disabled:opacity-50">
+        🧾 Invoice তৈরি করুন
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════ -->
+  <!-- SCREEN: INVOICE PREVIEW              -->
+  <!-- ════════════════════════════════════ -->
+  <div id="screen-invoice" class="screen hidden">
+
+    <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
+      <button onclick="showScreen('screen-pos')"
+        class="text-white text-sm">← নতুন বিল</button>
+      <span class="text-white font-bold text-sm">🧾 Invoice</span>
+      <button onclick="printInvoice()"
+        class="bg-white bg-opacity-20 text-white text-xs px-3 py-1.5 rounded-lg">
+        🖨️ Print
+      </button>
+    </div>
+
+    <div class="px-4 pt-4 pb-6">
+      <div id="invoice-content" class="glass-card rounded-2xl p-5 shadow-xl"></div>
+
+      <button onclick="newSale()"
+        class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-md
+          transition-all mt-4">
+        ✅ নতুন বিল শুরু করুন
+      </button>
+    </div>
+
+  </div>
   <!-- ════════════════════════════════════════════════════ -->
   <!-- FIREBASE + APP LOGIC                                 -->
   <!-- ════════════════════════════════════════════════════ -->
@@ -749,6 +909,397 @@
     } catch(e) { console.warn("Stats error:", e); }
   };
 
+    // ════════════════════════════════
+  // POS STATE
+  // ════════════════════════════════
+  let CART        = [];
+  let PAYMENT_METHOD = "CASH";
+  let SEARCH_TIMEOUT = null;
+  let STOCK_CACHE    = [];
+
+  // ════════════════════════════════
+  // OPEN POS
+  // ════════════════════════════════
+  window.openPOS = async () => {
+    showScreen("screen-pos");
+    clearCart();
+    // Pre-load stock cache
+    try {
+      const res    = await gasGet("getStock", {});
+      STOCK_CACHE  = res.data || [];
+    } catch(e) {
+      STOCK_CACHE  = [];
+      showToast("Offline mode — stock data নেই", "warning");
+    }
+  };
+
+  // ════════════════════════════════
+  // DRUG SEARCH
+  // ════════════════════════════════
+  window.searchDrugs = (query) => {
+    clearTimeout(SEARCH_TIMEOUT);
+    const resultsEl = document.getElementById("search-results");
+
+    if (!query || query.length < 2) {
+      resultsEl.classList.add("hidden");
+      return;
+    }
+
+    SEARCH_TIMEOUT = setTimeout(() => {
+      const q       = query.toLowerCase();
+      const matches = STOCK_CACHE.filter(s =>
+        s.brand_name?.toLowerCase().includes(q) &&
+        s.qty_in_stock_units > 0
+      ).slice(0, 8);
+
+      if (matches.length === 0) {
+        resultsEl.innerHTML = `
+          <p class="text-xs text-gray-400 text-center py-2">
+            "${query}" পাওয়া যায়নি
+          </p>`;
+        resultsEl.classList.remove("hidden");
+        return;
+      }
+
+      resultsEl.innerHTML = matches.map(s => `
+        <div onclick='addToCart(${JSON.stringify(s)})'
+          class="flex items-center justify-between bg-blue-50 hover:bg-blue-100
+            rounded-xl px-3 py-2 cursor-pointer transition-all">
+          <div>
+            <p class="text-sm font-semibold text-gray-800">${s.brand_name}</p>
+            <p class="text-xs text-gray-500">
+              Batch: ${s.batch_number} |
+              Stock: ${s.qty_in_stock_units} পিস |
+              Exp: ${s.expiry_date}
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-bold text-blue-600">৳${s.mrp_per_unit}</p>
+            <p class="text-xs text-gray-400">প্রতি পিস</p>
+          </div>
+        </div>`).join("");
+
+      resultsEl.classList.remove("hidden");
+    }, 300);
+  };
+
+  // ════════════════════════════════
+  // CART OPERATIONS
+  // ════════════════════════════════
+  window.addToCart = (stock) => {
+    // Already in cart?
+    const existing = CART.find(i => i.batch_id === stock.batch_id);
+    if (existing) {
+      existing.qty = Math.min(
+        existing.qty + 1,
+        stock.qty_in_stock_units
+      );
+    } else {
+      CART.push({
+        batch_id        : stock.batch_id,
+        drug_id         : stock.drug_id,
+        brand_name      : stock.brand_name,
+        unit_type       : stock.unit_type || "পিস",
+        qty             : 1,
+        mrp_per_unit    : parseFloat(stock.mrp_per_unit),
+        tp_per_unit     : parseFloat(stock.tp_per_unit),
+        discount_percent: 0,
+        max_qty         : stock.qty_in_stock_units,
+        expiry_date     : stock.expiry_date,
+        batch_number    : stock.batch_number
+      });
+    }
+
+    // Hide search
+    document.getElementById("search-results").classList.add("hidden");
+    document.getElementById("drug-search").value = "";
+
+    renderCart();
+    showToast(`${stock.brand_name} যোগ হয়েছে`, "success");
+  };
+
+  window.removeFromCart = (batchId) => {
+    CART = CART.filter(i => i.batch_id !== batchId);
+    renderCart();
+  };
+
+  window.updateQty = (batchId, qty) => {
+    const item = CART.find(i => i.batch_id === batchId);
+    if (!item) return;
+    const newQty = parseInt(qty);
+    if (newQty <= 0) {
+      removeFromCart(batchId);
+      return;
+    }
+    item.qty = Math.min(newQty, item.max_qty);
+    renderCart();
+  };
+
+  window.updateDiscount = (batchId, disc) => {
+    const item = CART.find(i => i.batch_id === batchId);
+    if (!item) return;
+    item.discount_percent = Math.min(parseFloat(disc) || 0, 100);
+    renderCart();
+  };
+
+  window.clearCart = () => {
+    CART = [];
+    PAYMENT_METHOD = "CASH";
+    document.getElementById("drug-search").value    = "";
+    document.getElementById("amount-paid").value    = "";
+    document.getElementById("customer-name").value  = "";
+    document.getElementById("customer-phone").value = "";
+    document.getElementById("change-display").textContent = "৳0";
+    document.getElementById("search-results").classList.add("hidden");
+    selectPayment("CASH");
+    renderCart();
+  };
+
+  // ════════════════════════════════
+  // RENDER CART
+  // ════════════════════════════════
+  function renderCart() {
+    const container  = document.getElementById("cart-items");
+    const emptyMsg   = document.getElementById("cart-empty-msg");
+    const countEl    = document.getElementById("cart-count");
+    const totalSec   = document.getElementById("cart-total-section");
+
+    countEl.textContent = `${CART.length} items`;
+
+    if (CART.length === 0) {
+      container.innerHTML = "";
+      container.appendChild(emptyMsg);
+      emptyMsg.classList.remove("hidden");
+      totalSec.classList.add("hidden");
+      return;
+    }
+
+    emptyMsg.classList.add("hidden");
+    totalSec.classList.remove("hidden");
+
+    let subtotal     = 0;
+    let totalDiscount = 0;
+
+    container.innerHTML = CART.map(item => {
+      const gross    = item.qty * item.mrp_per_unit;
+      const disc     = gross * item.discount_percent / 100;
+      const lineTotal = gross - disc;
+      subtotal      += gross;
+      totalDiscount += disc;
+
+      return `
+        <div class="bg-gray-50 rounded-xl p-3">
+          <div class="flex items-start justify-between mb-2">
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-gray-800">${item.brand_name}</p>
+              <p class="text-xs text-gray-500">
+                ৳${item.mrp_per_unit}/পিস | Exp: ${item.expiry_date}
+              </p>
+            </div>
+            <button onclick="removeFromCart('${item.batch_id}')"
+              class="text-red-400 hover:text-red-600 ml-2 text-lg">✕</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden">
+              <button onclick="updateQty('${item.batch_id}', ${item.qty - 1})"
+                class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold">−</button>
+              <input type="number" value="${item.qty}" min="1" max="${item.max_qty}"
+                onchange="updateQty('${item.batch_id}', this.value)"
+                class="w-12 text-center text-sm font-bold border-0 py-1" />
+              <button onclick="updateQty('${item.batch_id}', ${item.qty + 1})"
+                class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold">+</button>
+            </div>
+            <div class="flex items-center gap-1 flex-1">
+              <span class="text-xs text-gray-500">Disc%</span>
+              <input type="number" value="${item.discount_percent}" min="0" max="100"
+                onchange="updateDiscount('${item.batch_id}', this.value)"
+                class="w-14 border-2 border-gray-200 rounded-lg px-2 py-1 text-xs text-center" />
+            </div>
+            <p class="font-bold text-blue-600 text-sm">৳${lineTotal.toFixed(2)}</p>
+          </div>
+        </div>`;
+    }).join("");
+
+    const total = subtotal - totalDiscount;
+    document.getElementById("cart-subtotal").textContent = `৳${subtotal.toFixed(2)}`;
+    document.getElementById("cart-discount").textContent = `-৳${totalDiscount.toFixed(2)}`;
+    document.getElementById("cart-total").textContent    = `৳${total.toFixed(2)}`;
+
+    calcChange();
+  }
+
+  // ════════════════════════════════
+  // PAYMENT
+  // ════════════════════════════════
+  window.selectPayment = (method) => {
+    PAYMENT_METHOD = method;
+    ["CASH","BKASH","NAGAD"].forEach(m => {
+      const btn = document.getElementById("pay-" + m);
+      if (!btn) return;
+      if (m === method) {
+        btn.className = "payment-btn bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all";
+      } else {
+        btn.className = "payment-btn bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all";
+      }
+    });
+  };
+
+  window.calcChange = () => {
+    const paid    = parseFloat(document.getElementById("amount-paid").value) || 0;
+    const total   = CART.reduce((sum, item) => {
+      const gross = item.qty * item.mrp_per_unit;
+      const disc  = gross * item.discount_percent / 100;
+      return sum + gross - disc;
+    }, 0);
+    const change  = paid - total;
+    const el      = document.getElementById("change-display");
+    el.textContent = `৳${Math.max(0, change).toFixed(2)}`;
+    el.className   = change >= 0
+      ? "font-bold text-green-600"
+      : "font-bold text-red-500";
+  };
+
+  // ════════════════════════════════
+  // CHECKOUT
+  // ════════════════════════════════
+  window.checkout = async () => {
+    if (CART.length === 0) {
+      showToast("Cart খালি!", "warning"); return;
+    }
+
+    const amountPaid = parseFloat(
+      document.getElementById("amount-paid").value
+    ) || 0;
+    const total = CART.reduce((sum, item) => {
+      const gross = item.qty * item.mrp_per_unit;
+      return sum + gross - (gross * item.discount_percent / 100);
+    }, 0);
+
+    if (amountPaid < total) {
+      showToast("প্রদত্ত টাকা কম!", "warning"); return;
+    }
+
+    const btn = document.getElementById("checkout-btn");
+    btn.textContent = "⟳ সংরক্ষণ হচ্ছে...";
+    btn.disabled    = true;
+
+    const saleData = {
+      items          : CART,
+      customer_name  : document.getElementById("customer-name").value,
+      customer_phone : document.getElementById("customer-phone").value,
+      payment_method : PAYMENT_METHOD,
+      amount_paid    : amountPaid,
+      sold_by        : window.APP.user?.email || ""
+    };
+
+    try {
+      const result = await gasGet("saveSale", {
+        ...saleData,
+        items: JSON.stringify(saleData.items)
+      });
+
+      if (result.status === "OK") {
+        showInvoice(result.data, saleData);
+        showToast("✅ Invoice সংরক্ষিত হয়েছে!", "success");
+      } else {
+        showToast(result.message || "সমস্যা হয়েছে", "error");
+        btn.textContent = "🧾 Invoice তৈরি করুন";
+        btn.disabled    = false;
+      }
+    } catch (err) {
+      // Offline — save to queue
+      saveOfflineSale(saleData);
+      showToast("Offline — পরে sync হবে", "warning");
+      btn.textContent = "🧾 Invoice তৈরি করুন";
+      btn.disabled    = false;
+    }
+  };
+
+  // ════════════════════════════════
+  // INVOICE DISPLAY
+  // ════════════════════════════════
+  function showInvoice(data, saleData) {
+    showScreen("screen-invoice");
+
+    const pharmacyName = window.APP.license?.pharmacy_name || "ফার্মেসি";
+    const now          = new Date().toLocaleString("bn-BD");
+
+    document.getElementById("invoice-content").innerHTML = `
+      <div class="text-center mb-4">
+        <h2 class="text-lg font-bold text-gray-800">🏥 ${pharmacyName}</h2>
+        <p class="text-xs text-gray-500">${now}</p>
+        <p class="text-sm font-bold text-blue-600 mt-1">
+          Invoice: ${data.invoice_number}
+        </p>
+      </div>
+
+      <div class="border-t border-b border-gray-200 py-3 mb-3">
+        ${saleData.items.map(item => {
+          const gross = item.qty * item.mrp_per_unit;
+          const disc  = gross * item.discount_percent / 100;
+          return `
+            <div class="flex justify-between items-center mb-2">
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-800">${item.brand_name}</p>
+                <p class="text-xs text-gray-500">
+                  ${item.qty} × ৳${item.mrp_per_unit}
+                  ${item.discount_percent > 0
+                    ? `<span class="text-red-500">(-${item.discount_percent}%)</span>`
+                    : ""}
+                </p>
+              </div>
+              <p class="font-bold text-gray-800">৳${(gross-disc).toFixed(2)}</p>
+            </div>`;
+        }).join("")}
+      </div>
+
+      <div class="space-y-1 mb-4">
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-600">Subtotal:</span>
+          <span class="font-bold">৳${data.subtotal.toFixed(2)}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-600">Payment:</span>
+          <span class="font-medium">${saleData.payment_method}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-600">Paid:</span>
+          <span class="font-medium">৳${data.amount_paid.toFixed(2)}</span>
+        </div>
+        <div class="flex justify-between border-t pt-1">
+          <span class="text-sm font-bold">ফেরত:</span>
+          <span class="font-bold text-green-600">
+            ৳${data.change_returned.toFixed(2)}
+          </span>
+        </div>
+      </div>
+
+      <p class="text-center text-xs text-gray-400">
+        ধন্যবাদ আপনার ক্রয়ের জন্য 🙏
+      </p>`;
+  }
+
+  window.printInvoice = () => window.print();
+
+  window.newSale = () => {
+    clearCart();
+    showScreen("screen-pos");
+  };
+
+  // ════════════════════════════════
+  // OFFLINE SALE QUEUE
+  // ════════════════════════════════
+  function saveOfflineSale(saleData) {
+    const queue = JSON.parse(
+      localStorage.getItem("pharmaos_offline_queue") || "[]"
+    );
+    queue.push({
+      ...saleData,
+      offline_id        : "OFF-" + Date.now(),
+      offline_created_at: new Date().toISOString()
+    });
+    localStorage.setItem("pharmaos_offline_queue", JSON.stringify(queue));
+  }
   // ════════════════════════════════
   // PRICING / PLAN
   // ════════════════════════════════
