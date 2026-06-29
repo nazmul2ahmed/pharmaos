@@ -29,8 +29,11 @@
     .fade-in { animation: fadeIn 0.3s ease-out; }
     @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     input:focus { outline: none; }
-    .btn-primary {
-      background: linear-gradient(135deg, #1a73e8, #0d47a1);
+    .btn-primary { background: linear-gradient(135deg, #1a73e8, #0d47a1); }
+    @media print {
+      body * { visibility: hidden; }
+      #invoice-content, #invoice-content * { visibility: visible; }
+      #invoice-content { position: fixed; top: 0; left: 0; width: 100%; }
     }
   </style>
 </head>
@@ -50,9 +53,7 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════ -->
-  <!-- SCREEN: WELCOME                      -->
-  <!-- ════════════════════════════════════ -->
+  <!-- ════════════════ SCREEN: WELCOME ════════════════ -->
   <div id="screen-welcome" class="screen hidden slide-up px-4 pt-10 pb-6">
     <div class="text-center mb-8">
       <div class="text-6xl mb-3">💊</div>
@@ -60,9 +61,7 @@
       <p class="text-blue-200 text-sm">স্মার্ট ফার্মেসি ম্যানেজমেন্ট সিস্টেম</p>
       <p class="text-blue-300 text-xs mt-1">Offline-First • Cloud-Powered • Multi-Tenant</p>
     </div>
-
     <div class="glass-card rounded-2xl p-6 shadow-2xl">
-      <!-- Features -->
       <div class="grid grid-cols-2 gap-3 mb-6">
         <div class="bg-blue-50 rounded-xl p-3 text-center">
           <div class="text-2xl mb-1">🧾</div>
@@ -85,134 +84,106 @@
           <p class="text-xs text-gray-500">দৈনিক/মাসিক</p>
         </div>
       </div>
-
       <button onclick="showScreen('screen-login')"
-        class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md mb-3 transition-all hover:opacity-90">
+        class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md mb-3">
         🔐 লগইন করুন
       </button>
       <button onclick="showScreen('screen-register')"
-        class="w-full bg-white border-2 border-blue-200 hover:border-blue-400 text-blue-700
-          font-semibold py-3.5 rounded-xl transition-all">
+        class="w-full bg-white border-2 border-blue-200 hover:border-blue-400
+          text-blue-700 font-semibold py-3.5 rounded-xl transition-all">
         ✨ বিনামূল্যে শুরু করুন (১৫ দিন)
       </button>
     </div>
-
     <p class="text-center text-blue-300 text-xs mt-4">© 2026 PharmaOS — nazmul2ahmed</p>
   </div>
 
-  <!-- ════════════════════════════════════ -->
-  <!-- SCREEN: LOGIN                        -->
-  <!-- ════════════════════════════════════ -->
+  <!-- ════════════════ SCREEN: LOGIN ════════════════ -->
   <div id="screen-login" class="screen hidden slide-up px-4 pt-8 pb-6">
     <div class="text-center mb-6">
       <div class="text-4xl mb-2">🔐</div>
       <h2 class="text-2xl font-bold text-white">লগইন</h2>
       <p class="text-blue-200 text-sm">আপনার account-এ প্রবেশ করুন</p>
     </div>
-
     <div class="glass-card rounded-2xl p-6 shadow-2xl">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">ইমেইল</label>
           <input id="login-email" type="email" placeholder="your@gmail.com"
-            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
-              text-sm transition-all" />
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 text-sm transition-all" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড</label>
           <div class="relative">
             <input id="login-password" type="password" placeholder="••••••••"
-              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
-                text-sm transition-all pr-12" />
+              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 text-sm transition-all pr-12" />
             <button onclick="togglePassword('login-password')"
-              class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-lg">👁</button>
+              class="absolute right-3 top-3 text-gray-400 text-lg">👁</button>
           </div>
         </div>
-
-        <button onclick="forgotPassword()"
-          class="text-xs text-blue-500 hover:text-blue-700 float-right">
+        <button onclick="forgotPassword()" class="text-xs text-blue-500 float-right">
           পাসওয়ার্ড ভুলে গেছেন?
         </button>
-
         <div id="login-error" class="hidden bg-red-50 border border-red-200 rounded-xl p-3">
           <p id="login-error-msg" class="text-red-600 text-sm"></p>
         </div>
-
         <button id="login-btn" onclick="doLogin()"
-          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md
-            transition-all hover:opacity-90 mt-2">
+          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md mt-2">
           লগইন করুন →
         </button>
       </div>
-
       <div class="border-t border-gray-100 mt-5 pt-4 text-center">
         <p class="text-sm text-gray-500">Account নেই?
-          <button onclick="showScreen('screen-register')"
-            class="text-blue-600 font-semibold hover:underline">
+          <button onclick="showScreen('screen-register')" class="text-blue-600 font-semibold">
             বিনামূল্যে শুরু করুন
           </button>
         </p>
       </div>
     </div>
-
     <button onclick="showScreen('screen-welcome')"
-      class="w-full text-center text-blue-200 text-sm mt-4 hover:text-white">
-      ← ফিরে যান
-    </button>
+      class="w-full text-center text-blue-200 text-sm mt-4">← ফিরে যান</button>
   </div>
 
-  <!-- ════════════════════════════════════ -->
-  <!-- SCREEN: REGISTER                     -->
-  <!-- ════════════════════════════════════ -->
+  <!-- ════════════════ SCREEN: REGISTER ════════════════ -->
   <div id="screen-register" class="screen hidden slide-up px-4 pt-6 pb-6">
     <div class="text-center mb-5">
       <div class="text-4xl mb-2">✨</div>
       <h2 class="text-2xl font-bold text-white">বিনামূল্যে শুরু করুন</h2>
       <p class="text-blue-200 text-sm">১৫ দিনের ফ্রি ট্রায়াল — কোনো card লাগবে না</p>
     </div>
-
     <div class="glass-card rounded-2xl p-6 shadow-2xl">
       <div class="space-y-3">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">আপনার নাম</label>
           <input id="reg-name" type="text" placeholder="মো. রহিম উদ্দিন"
-            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
-              text-sm transition-all" />
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 text-sm" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">ফার্মেসির নাম</label>
           <input id="reg-pharmacy" type="text" placeholder="রহিম মেডিকেল হল"
-            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
-              text-sm transition-all" />
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 text-sm" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">ইমেইল</label>
           <input id="reg-email" type="email" placeholder="your@gmail.com"
-            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
-              text-sm transition-all" />
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 text-sm" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড</label>
           <div class="relative">
             <input id="reg-password" type="password" placeholder="কমপক্ষে ৬ অক্ষর"
-              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
-                text-sm transition-all pr-12" />
+              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 text-sm pr-12" />
             <button onclick="togglePassword('reg-password')"
-              class="absolute right-3 top-3 text-gray-400 hover:text-gray-600 text-lg">👁</button>
+              class="absolute right-3 top-3 text-gray-400 text-lg">👁</button>
           </div>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">পাসওয়ার্ড নিশ্চিত করুন</label>
           <input id="reg-password2" type="password" placeholder="আবার টাইপ করুন"
-            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3
-              text-sm transition-all" />
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 text-sm" />
         </div>
-
         <div id="reg-error" class="hidden bg-red-50 border border-red-200 rounded-xl p-3">
           <p id="reg-error-msg" class="text-red-600 text-sm"></p>
         </div>
-
-        <!-- Trial Badge -->
         <div class="bg-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-2">
           <span class="text-xl">🎁</span>
           <div>
@@ -220,31 +191,24 @@
             <p class="text-xs text-green-600">কোনো credit card লাগবে না</p>
           </div>
         </div>
-
         <button id="reg-btn" onclick="doRegister()"
-          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md
-            transition-all hover:opacity-90">
+          class="w-full btn-primary text-white font-semibold py-3.5 rounded-xl shadow-md">
           ফ্রি ট্রায়াল শুরু করুন →
         </button>
       </div>
-
       <div class="border-t border-gray-100 mt-4 pt-4 text-center">
         <p class="text-sm text-gray-500">আগে থেকে account আছে?
-          <button onclick="showScreen('screen-login')"
-            class="text-blue-600 font-semibold hover:underline">লগইন করুন</button>
+          <button onclick="showScreen('screen-login')" class="text-blue-600 font-semibold">
+            লগইন করুন
+          </button>
         </p>
       </div>
     </div>
-
     <button onclick="showScreen('screen-welcome')"
-      class="w-full text-center text-blue-200 text-sm mt-4 hover:text-white">
-      ← ফিরে যান
-    </button>
+      class="w-full text-center text-blue-200 text-sm mt-4">← ফিরে যান</button>
   </div>
 
-  <!-- ════════════════════════════════════ -->
-  <!-- SCREEN: CHECKING LICENSE             -->
-  <!-- ════════════════════════════════════ -->
+  <!-- ════════════════ SCREEN: CHECKING ════════════════ -->
   <div id="screen-checking" class="screen hidden fade-in">
     <div class="flex flex-col items-center justify-center min-h-screen px-6">
       <div class="glass-card rounded-2xl p-8 text-center shadow-2xl w-full max-w-sm">
@@ -260,21 +224,16 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════ -->
-  <!-- SCREEN: TRIAL EXPIRED / PRICING      -->
-  <!-- ════════════════════════════════════ -->
+  <!-- ════════════════ SCREEN: PRICING ════════════════ -->
   <div id="screen-pricing" class="screen hidden slide-up px-4 pt-6 pb-6">
     <div class="text-center mb-5">
       <div class="text-4xl mb-2">🚀</div>
       <h2 class="text-xl font-bold text-white">Plan বেছে নিন</h2>
       <p class="text-blue-200 text-sm">আপনার ট্রায়াল শেষ হয়েছে</p>
     </div>
-
     <div class="space-y-3">
-      <!-- Monthly -->
-      <div onclick="selectPlan('MONTHLY')"
-        class="glass-card rounded-2xl p-5 shadow-xl cursor-pointer hover:shadow-2xl
-          transition-all border-2 border-transparent hover:border-blue-400" id="plan-MONTHLY">
+      <div onclick="selectPlan('MONTHLY')" id="plan-MONTHLY"
+        class="glass-card rounded-2xl p-5 shadow-xl cursor-pointer transition-all border-2 border-transparent">
         <div class="flex items-center justify-between mb-2">
           <div>
             <p class="font-bold text-gray-800">মাসিক প্ল্যান</p>
@@ -285,20 +244,12 @@
             <p class="text-xs text-gray-400">/মাস</p>
           </div>
         </div>
-        <div class="flex flex-wrap gap-1 mt-2">
-          <span class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">✅ সব features</span>
-          <span class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">✅ Offline POS</span>
-          <span class="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">✅ Reports</span>
-        </div>
       </div>
-
-      <!-- Yearly -->
-      <div onclick="selectPlan('YEARLY')"
-        class="glass-card rounded-2xl p-5 shadow-xl cursor-pointer hover:shadow-2xl
-          transition-all border-2 border-transparent hover:border-green-400 relative"
-        id="plan-YEARLY">
-        <div class="absolute -top-2 right-4 bg-green-500 text-white text-xs font-bold
-          px-3 py-0.5 rounded-full">সেরা মূল্য 🔥</div>
+      <div onclick="selectPlan('YEARLY')" id="plan-YEARLY"
+        class="glass-card rounded-2xl p-5 shadow-xl cursor-pointer transition-all border-2 border-transparent relative">
+        <div class="absolute -top-2 right-4 bg-green-500 text-white text-xs font-bold px-3 py-0.5 rounded-full">
+          সেরা মূল্য 🔥
+        </div>
         <div class="flex items-center justify-between mb-2">
           <div>
             <p class="font-bold text-gray-800">বার্ষিক প্ল্যান</p>
@@ -309,28 +260,18 @@
             <p class="text-xs text-gray-400">/বছর</p>
           </div>
         </div>
-        <div class="flex flex-wrap gap-1 mt-2">
-          <span class="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">✅ সব features</span>
-          <span class="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">✅ ২ মাস ফ্রি</span>
-          <span class="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">✅ Priority support</span>
-        </div>
       </div>
-
-      <!-- Payment Info -->
       <div id="payment-section" class="hidden glass-card rounded-2xl p-5 shadow-xl">
         <p class="font-bold text-gray-800 mb-3">💳 পেমেন্ট করুন</p>
         <div class="bg-blue-50 rounded-xl p-3 mb-3">
           <p class="text-sm font-semibold text-blue-800">bKash / Nagad নম্বর:</p>
           <p class="text-lg font-bold text-blue-600 mt-1">01XXXXXXXXX</p>
-          <p class="text-xs text-blue-500 mt-1">Send Money করুন</p>
         </div>
         <div class="space-y-2">
-          <input id="payment-txn" type="text" placeholder="Transaction ID (e.g. 8K3J2M1N)"
-            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4
-              py-2.5 text-sm transition-all" />
+          <input id="payment-txn" type="text" placeholder="Transaction ID"
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-2.5 text-sm" />
           <button onclick="submitPayment()"
-            class="w-full btn-primary text-white font-semibold py-3 rounded-xl shadow-md
-              transition-all hover:opacity-90">
+            class="w-full btn-primary text-white font-semibold py-3 rounded-xl shadow-md">
             পেমেন্ট নিশ্চিত করুন →
           </button>
         </div>
@@ -339,16 +280,12 @@
         </p>
       </div>
     </div>
-
-    <button onclick="signOut()"
-      class="w-full text-center text-blue-200 text-sm mt-4 hover:text-white">
+    <button onclick="signOut()" class="w-full text-center text-blue-200 text-sm mt-4">
       লগআউট
     </button>
   </div>
 
-  <!-- ════════════════════════════════════ -->
-  <!-- SCREEN: BLOCKED                      -->
-  <!-- ════════════════════════════════════ -->
+  <!-- ════════════════ SCREEN: BLOCKED ════════════════ -->
   <div id="screen-blocked" class="screen hidden slide-up">
     <div class="flex flex-col items-center justify-center min-h-screen px-6">
       <div class="glass-card rounded-2xl p-8 text-center shadow-2xl w-full max-w-sm">
@@ -360,20 +297,15 @@
           <p class="text-xs text-yellow-600 mt-1">nazmul2ahmed@gmail.com</p>
         </div>
         <button onclick="signOut()"
-          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium
-            py-2.5 rounded-xl text-sm transition-all">
+          class="w-full bg-gray-100 text-gray-700 font-medium py-2.5 rounded-xl text-sm">
           🔄 অন্য Account দিয়ে চেষ্টা করুন
         </button>
       </div>
     </div>
   </div>
 
-  <!-- ════════════════════════════════════ -->
-  <!-- SCREEN: DASHBOARD                    -->
-  <!-- ════════════════════════════════════ -->
+  <!-- ════════════════ SCREEN: DASHBOARD ════════════════ -->
   <div id="screen-dashboard" class="screen hidden slide-up">
-
-    <!-- Header -->
     <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
       <div>
         <p class="text-white font-bold text-sm" id="dash-pharmacy"></p>
@@ -382,16 +314,12 @@
       <div class="flex items-center gap-2">
         <span id="dash-badge" class="hidden text-xs font-bold px-2 py-0.5 rounded-full"></span>
         <button onclick="signOut()"
-          class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white text-xs
-            px-3 py-1.5 rounded-lg transition-all">
+          class="bg-white bg-opacity-20 text-white text-xs px-3 py-1.5 rounded-lg">
           লগআউট
         </button>
       </div>
     </div>
-
     <div class="px-4 mt-4 pb-6 space-y-4">
-
-      <!-- Welcome -->
       <div class="glass-card rounded-2xl p-4 shadow-xl">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-2xl">💊</div>
@@ -400,8 +328,6 @@
             <p class="text-xs text-gray-500" id="dash-status"></p>
           </div>
         </div>
-
-        <!-- Stats -->
         <div class="grid grid-cols-3 gap-2">
           <div class="bg-blue-50 rounded-xl p-3 text-center">
             <p class="text-xl font-bold text-blue-600" id="stat-drugs">—</p>
@@ -417,82 +343,58 @@
           </div>
         </div>
       </div>
-
-      <!-- Menu -->
       <div class="grid grid-cols-2 gap-3">
-        <button onclick="showToast('POS — Phase 5-এ আসছে!','info')"
-          class="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl p-4 text-left
-            transition-all shadow-lg">
+        <button onclick="openPOS()"
+          class="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl p-4 text-left transition-all shadow-lg">
           <div class="text-2xl mb-2">🧾</div>
           <p class="font-semibold text-sm">POS বিলিং</p>
-          <p class="text-xs text-blue-200 mt-0.5">আসছে শীঘ্রই</p>
+          <p class="text-xs text-blue-200 mt-0.5">বিল তৈরি করুন</p>
         </button>
         <button onclick="showToast('Inventory — Phase 6-এ আসছে!','info')"
-          class="bg-green-600 hover:bg-green-700 text-white rounded-2xl p-4 text-left
-            transition-all shadow-lg">
+          class="bg-green-600 hover:bg-green-700 text-white rounded-2xl p-4 text-left transition-all shadow-lg">
           <div class="text-2xl mb-2">📦</div>
           <p class="font-semibold text-sm">ইনভেন্টরি</p>
           <p class="text-xs text-green-200 mt-0.5">আসছে শীঘ্রই</p>
         </button>
         <button onclick="loadStats()"
-          class="bg-purple-600 hover:bg-purple-700 text-white rounded-2xl p-4 text-left
-            transition-all shadow-lg">
+          class="bg-purple-600 hover:bg-purple-700 text-white rounded-2xl p-4 text-left transition-all shadow-lg">
           <div class="text-2xl mb-2">🔄</div>
           <p class="font-semibold text-sm">Refresh</p>
           <p class="text-xs text-purple-200 mt-0.5">Stats আপডেট</p>
         </button>
         <button onclick="showToast('Reports — Phase 7-এ আসছে!','info')"
-          class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-2xl p-4 text-left
-            transition-all shadow-lg">
+          class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-2xl p-4 text-left transition-all shadow-lg">
           <div class="text-2xl mb-2">📊</div>
           <p class="font-semibold text-sm">রিপোর্ট</p>
           <p class="text-xs text-yellow-100 mt-0.5">আসছে শীঘ্রই</p>
         </button>
       </div>
-
-      <!-- Alerts -->
       <div id="alerts-box" class="hidden glass-card rounded-2xl p-4 shadow-lg">
         <p class="font-bold text-gray-800 mb-3 text-sm">⚠️ Expiry Alerts</p>
         <div id="alerts-list" class="space-y-2"></div>
       </div>
-
     </div>
   </div>
-<!-- ════════════════════════════════════ -->
-  <!-- SCREEN: POS                          -->
-  <!-- ════════════════════════════════════ -->
-  <div id="screen-pos" class="screen hidden">
 
-    <!-- POS Header -->
+  <!-- ════════════════ SCREEN: POS ════════════════ -->
+  <div id="screen-pos" class="screen hidden">
     <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
-      <button onclick="showScreen('screen-dashboard')"
-        class="text-white text-sm flex items-center gap-1">
-        ← ফিরে যান
-      </button>
+      <button onclick="showScreen('screen-dashboard')" class="text-white text-sm">← ফিরে যান</button>
       <span class="text-white font-bold text-sm">🧾 POS বিলিং</span>
-      <button onclick="clearCart()"
-        class="bg-red-500 bg-opacity-80 text-white text-xs px-3 py-1.5 rounded-lg">
+      <button onclick="clearCart()" class="bg-red-500 bg-opacity-80 text-white text-xs px-3 py-1.5 rounded-lg">
         🗑️ Clear
       </button>
     </div>
-
     <div class="px-4 pt-3 pb-24 space-y-3">
 
-      <!-- Search Bar -->
+      <!-- Search -->
       <div class="glass-card rounded-2xl p-3 shadow-lg">
         <div class="relative">
-          <input
-            id="drug-search"
-            type="text"
-            placeholder="ওষুধের নাম লিখুন... (Napa, Amoxi...)"
+          <input id="drug-search" type="text" placeholder="ওষুধের নাম লিখুন..."
             oninput="searchDrugs(this.value)"
-            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl
-              px-4 py-3 pr-10 text-sm transition-all"
-          />
+            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 pr-10 text-sm transition-all" />
           <span class="absolute right-3 top-3 text-gray-400 text-lg">🔍</span>
         </div>
-
-        <!-- Search Results -->
         <div id="search-results" class="hidden mt-2 space-y-1 max-h-60 overflow-y-auto"></div>
       </div>
 
@@ -500,18 +402,15 @@
       <div class="glass-card rounded-2xl p-4 shadow-lg">
         <div class="flex items-center justify-between mb-3">
           <p class="font-bold text-gray-800 text-sm">🛒 Cart</p>
-          <span id="cart-count" class="bg-blue-100 text-blue-700 text-xs font-bold
-            px-2 py-0.5 rounded-full">0 items</span>
+          <span id="cart-count" class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
+            0 items
+          </span>
         </div>
-
-        <!-- Cart Items -->
         <div id="cart-items" class="space-y-2 min-h-12">
           <p id="cart-empty-msg" class="text-xs text-gray-400 text-center py-3">
             Cart খালি — ওষুধ search করুন
           </p>
         </div>
-
-        <!-- Cart Total -->
         <div id="cart-total-section" class="hidden border-t border-gray-100 mt-3 pt-3">
           <div class="flex justify-between items-center mb-1">
             <span class="text-sm text-gray-600">Subtotal:</span>
@@ -528,50 +427,40 @@
         </div>
       </div>
 
-      <!-- Customer Info (Optional) -->
+      <!-- Customer -->
       <div class="glass-card rounded-2xl p-4 shadow-lg">
         <p class="font-bold text-gray-800 text-sm mb-3">👤 ক্রেতার তথ্য (ঐচ্ছিক)</p>
         <div class="grid grid-cols-2 gap-2">
           <input id="customer-name" type="text" placeholder="নাম"
-            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3
-              py-2 text-sm transition-all" />
+            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3 py-2 text-sm" />
           <input id="customer-phone" type="tel" placeholder="ফোন"
-            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3
-              py-2 text-sm transition-all" />
+            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3 py-2 text-sm" />
         </div>
       </div>
 
-      <!-- Payment Section -->
+      <!-- Payment -->
       <div class="glass-card rounded-2xl p-4 shadow-lg">
         <p class="font-bold text-gray-800 text-sm mb-3">💳 পেমেন্ট</p>
-
-        <!-- Payment Method -->
         <div class="grid grid-cols-3 gap-2 mb-3">
           <button onclick="selectPayment('CASH')" id="pay-CASH"
-            class="payment-btn active-payment bg-green-500 text-white text-xs
-              font-semibold py-2 rounded-xl transition-all">
+            class="bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all">
             💵 Cash
           </button>
           <button onclick="selectPayment('BKASH')" id="pay-BKASH"
-            class="payment-btn bg-gray-100 text-gray-600 text-xs
-              font-semibold py-2 rounded-xl transition-all">
+            class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
             📱 bKash
           </button>
           <button onclick="selectPayment('NAGAD')" id="pay-NAGAD"
-            class="payment-btn bg-gray-100 text-gray-600 text-xs
-              font-semibold py-2 rounded-xl transition-all">
+            class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
             📱 Nagad
           </button>
         </div>
-
-        <!-- Amount Paid -->
         <div class="space-y-2">
           <div class="relative">
             <span class="absolute left-3 top-3 text-gray-500 font-bold">৳</span>
             <input id="amount-paid" type="number" placeholder="প্রদত্ত টাকা"
               oninput="calcChange()"
-              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl
-                pl-7 pr-4 py-3 text-sm transition-all" />
+              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl pl-7 pr-4 py-3 text-sm" />
           </div>
           <div class="flex justify-between items-center bg-blue-50 rounded-xl px-4 py-2">
             <span class="text-sm text-gray-600">ফেরত:</span>
@@ -582,54 +471,40 @@
 
     </div>
 
-    <!-- Fixed Bottom — Checkout Button -->
+    <!-- Checkout Button -->
     <div class="fixed bottom-0 left-0 right-0 px-4 py-3 bg-white border-t border-gray-200 shadow-lg">
       <button id="checkout-btn" onclick="checkout()"
-        class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-md
-          transition-all hover:opacity-90 text-base disabled:opacity-50">
+        class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-md text-base">
         🧾 Invoice তৈরি করুন
       </button>
     </div>
-
   </div>
 
-  <!-- ════════════════════════════════════ -->
-  <!-- SCREEN: INVOICE PREVIEW              -->
-  <!-- ════════════════════════════════════ -->
+  <!-- ════════════════ SCREEN: INVOICE ════════════════ -->
   <div id="screen-invoice" class="screen hidden">
-
     <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
-      <button onclick="showScreen('screen-pos')"
-        class="text-white text-sm">← নতুন বিল</button>
+      <button onclick="showScreen('screen-pos')" class="text-white text-sm">← নতুন বিল</button>
       <span class="text-white font-bold text-sm">🧾 Invoice</span>
-      <button onclick="printInvoice()"
-        class="bg-white bg-opacity-20 text-white text-xs px-3 py-1.5 rounded-lg">
+      <button onclick="printInvoice()" class="bg-white bg-opacity-20 text-white text-xs px-3 py-1.5 rounded-lg">
         🖨️ Print
       </button>
     </div>
-
     <div class="px-4 pt-4 pb-6">
       <div id="invoice-content" class="glass-card rounded-2xl p-5 shadow-xl"></div>
-
       <button onclick="newSale()"
-        class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-md
-          transition-all mt-4">
+        class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-md transition-all mt-4">
         ✅ নতুন বিল শুরু করুন
       </button>
     </div>
-
   </div>
-  <!-- ════════════════════════════════════════════════════ -->
-  <!-- FIREBASE + APP LOGIC                                 -->
-  <!-- ════════════════════════════════════════════════════ -->
-  <script type="module">
-  import { initializeApp }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword,
-           signInWithEmailAndPassword, signOut as fbSignOut,
-           onAuthStateChanged, sendPasswordResetEmail,
-           updateProfile }                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // ── Firebase Config ──
+  <!-- ════════════════ FIREBASE + APP LOGIC ════════════════ -->
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+           signOut as fbSignOut, onAuthStateChanged, sendPasswordResetEmail,
+           updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
   const firebaseConfig = {
     apiKey           : "AIzaSyCCbusbbjWQYJT8IhLfvwsMOF6ntP5nRvY",
     authDomain       : "pharmaos-aedb6.firebaseapp.com",
@@ -639,48 +514,32 @@
     appId            : "1:474857828578:web:6e815f2739b3fbadc3aebb"
   };
 
-  const fbApp  = initializeApp(firebaseConfig);
-  const auth   = getAuth(fbApp);
-
-  // ── GAS API URL ──
+  const fbApp = initializeApp(firebaseConfig);
+  const auth  = getAuth(fbApp);
   const GAS_URL = "https://script.google.com/macros/s/AKfycbxsRb_liX3Owb9uQAG4Ma_--BuHKsy5CGctxKO4y4laEt4paVuYas5qtaUuG0bZhkyC1A/exec";
 
-  // ── App State ──
   window.APP = { user: null, license: null };
 
-  // ════════════════════════════════
-  // SCREEN MANAGER
-  // ════════════════════════════════
+  // ── Helpers ──
   window.showScreen = (id) => {
     document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
     document.getElementById(id).classList.remove("hidden");
   };
 
-  // ════════════════════════════════
-  // TOAST
-  // ════════════════════════════════
   window.showToast = (msg, type = "success") => {
     const el = document.getElementById("toast");
-    const colors = { success:"bg-green-500", error:"bg-red-500",
-                     warning:"bg-yellow-500", info:"bg-blue-500" };
-    el.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm
-      font-medium shadow-lg transition-all duration-300 max-w-xs ${colors[type]}`;
+    const colors = { success:"bg-green-500", error:"bg-red-500", warning:"bg-yellow-500", info:"bg-blue-500" };
+    el.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-xl text-white text-sm font-medium shadow-lg transition-all duration-300 max-w-xs ${colors[type]}`;
     el.textContent = msg;
     el.style.opacity = "1";
     setTimeout(() => { el.style.opacity = "0"; }, 3500);
   };
 
-  // ════════════════════════════════
-  // PASSWORD TOGGLE
-  // ════════════════════════════════
   window.togglePassword = (id) => {
     const el = document.getElementById(id);
     el.type = el.type === "password" ? "text" : "password";
   };
 
-  // ════════════════════════════════
-  // GAS API
-  // ════════════════════════════════
   async function gasGet(action, params = {}) {
     const url = new URL(GAS_URL);
     url.searchParams.set("action", action);
@@ -689,30 +548,27 @@
     return res.json();
   }
 
-  // ════════════════════════════════
-  // REGISTER
-  // ════════════════════════════════
+  // ── Auth ──
   window.doRegister = async () => {
-    const name      = document.getElementById("reg-name").value.trim();
-    const pharmacy  = document.getElementById("reg-pharmacy").value.trim();
-    const email     = document.getElementById("reg-email").value.trim();
-    const pass      = document.getElementById("reg-password").value;
-    const pass2     = document.getElementById("reg-password2").value;
-    const errBox    = document.getElementById("reg-error");
-    const errMsg    = document.getElementById("reg-error-msg");
-    const btn       = document.getElementById("reg-btn");
+    const name     = document.getElementById("reg-name").value.trim();
+    const pharmacy = document.getElementById("reg-pharmacy").value.trim();
+    const email    = document.getElementById("reg-email").value.trim();
+    const pass     = document.getElementById("reg-password").value;
+    const pass2    = document.getElementById("reg-password2").value;
+    const errBox   = document.getElementById("reg-error");
+    const errMsg   = document.getElementById("reg-error-msg");
+    const btn      = document.getElementById("reg-btn");
 
-    // Validation
     if (!name || !pharmacy || !email || !pass) {
       errMsg.textContent = "সব তথ্য পূরণ করুন।";
       errBox.classList.remove("hidden"); return;
     }
     if (pass.length < 6) {
-      errMsg.textContent = "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে।";
+      errMsg.textContent = "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর।";
       errBox.classList.remove("hidden"); return;
     }
     if (pass !== pass2) {
-      errMsg.textContent = "পাসওয়ার্ড দুটো মিলছে না।";
+      errMsg.textContent = "পাসওয়ার্ড মিলছে না।";
       errBox.classList.remove("hidden"); return;
     }
 
@@ -721,19 +577,10 @@
     btn.disabled    = true;
 
     try {
-      // Firebase-এ user তৈরি
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
       await updateProfile(cred.user, { displayName: name });
-
-      // Master Sheet-এ trial entry যোগ
-      await gasGet("registerTrial", {
-        email        : email,
-        name         : name,
-        pharmacy_name: pharmacy
-      });
-
+      await gasGet("registerTrial", { email, name, pharmacy_name: pharmacy });
       showToast("✅ Registration সফল! ১৫ দিনের ট্রায়াল শুরু হয়েছে।", "success");
-
     } catch (err) {
       btn.textContent = "ফ্রি ট্রায়াল শুরু করুন →";
       btn.disabled    = false;
@@ -742,9 +589,6 @@
     }
   };
 
-  // ════════════════════════════════
-  // LOGIN
-  // ════════════════════════════════
   window.doLogin = async () => {
     const email  = document.getElementById("login-email").value.trim();
     const pass   = document.getElementById("login-password").value;
@@ -763,7 +607,6 @@
 
     try {
       await signInWithEmailAndPassword(auth, email, pass);
-      // onAuthStateChanged handle করবে
     } catch (err) {
       btn.textContent = "লগইন করুন →";
       btn.disabled    = false;
@@ -772,25 +615,17 @@
     }
   };
 
-  // ════════════════════════════════
-  // FORGOT PASSWORD
-  // ════════════════════════════════
   window.forgotPassword = async () => {
     const email = document.getElementById("login-email").value.trim();
-    if (!email) {
-      showToast("আগে ইমেইল টাইপ করুন", "warning"); return;
-    }
+    if (!email) { showToast("আগে ইমেইল টাইপ করুন", "warning"); return; }
     try {
       await sendPasswordResetEmail(auth, email);
       showToast("✅ Password reset email পাঠানো হয়েছে!", "success");
     } catch (err) {
-      showToast("Email পাঠানো যায়নি। ইমেইল সঠিক আছে?", "error");
+      showToast("Email পাঠানো যায়নি।", "error");
     }
   };
 
-  // ════════════════════════════════
-  // SIGN OUT
-  // ════════════════════════════════
   window.signOut = async () => {
     await fbSignOut(auth);
     window.APP = { user: null, license: null };
@@ -799,15 +634,9 @@
     showToast("লগআউট সফল", "info");
   };
 
-  // ════════════════════════════════
-  // AUTH STATE LISTENER
-  // ════════════════════════════════
   onAuthStateChanged(auth, async (fbUser) => {
-    if (!fbUser) {
-      showScreen("screen-welcome"); return;
-    }
+    if (!fbUser) { showScreen("screen-welcome"); return; }
 
-    // User logged in — validate license
     window.APP.user = {
       email : fbUser.email,
       name  : fbUser.displayName || fbUser.email.split("@")[0],
@@ -818,11 +647,7 @@
     document.getElementById("checking-email").textContent = fbUser.email;
 
     try {
-      const result = await gasGet("validateLicense", {
-        email      : fbUser.email,
-        licenseKey : ""
-      });
-
+      const result = await gasGet("validateLicense", { email: fbUser.email, licenseKey: "" });
       window.APP.license = result;
 
       if (result.valid) {
@@ -830,50 +655,39 @@
         loadDashboard(result);
       } else if (result.reason === "TRIAL_EXPIRED") {
         showScreen("screen-pricing");
+      } else if (result.reason === "EMAIL_NOT_REGISTERED") {
+        showScreen("screen-pricing");
       } else {
-        // New user — check if trial just started
-        if (result.reason === "EMAIL_NOT_REGISTERED") {
-          showScreen("screen-pricing");
-        } else {
-          document.getElementById("blocked-msg").textContent = result.message;
-          showScreen("screen-blocked");
-        }
+        document.getElementById("blocked-msg").textContent = result.message;
+        showScreen("screen-blocked");
       }
     } catch (err) {
-      // Offline fallback
       const cached = localStorage.getItem("pharmaos_license");
       if (cached) {
         window.APP.license = JSON.parse(cached);
         loadDashboard(window.APP.license);
         showToast("Offline mode চলছে", "warning");
       } else {
-        document.getElementById("blocked-msg").textContent =
-          "Internet সংযোগ নেই।";
+        document.getElementById("blocked-msg").textContent = "Internet সংযোগ নেই।";
         showScreen("screen-blocked");
       }
     }
   });
 
-  // ════════════════════════════════
-  // DASHBOARD
-  // ════════════════════════════════
+  // ── Dashboard ──
   function loadDashboard(license) {
     showScreen("screen-dashboard");
     const user = window.APP.user;
-
-    const pharmacyName = license.pharmacy_name || "আপনার ফার্মেসি";
-    document.getElementById("dash-pharmacy").textContent = "🏥 " + pharmacyName;
+    document.getElementById("dash-pharmacy").textContent = "🏥 " + (license.pharmacy_name || "আপনার ফার্মেসি");
     document.getElementById("dash-email").textContent    = user.email;
     document.getElementById("dash-welcome").textContent  = `স্বাগতম, ${user.name}!`;
 
-    // Badge
     const badge = document.getElementById("dash-badge");
-    if (license.status === "TRIAL" || license.daysLeft !== undefined) {
-      const days = license.daysLeft ?? "?";
-      badge.textContent = `Trial: ${days} দিন`;
+    if (license.status === "TRIAL") {
+      badge.textContent = `Trial: ${license.daysLeft ?? "?"} দিন`;
       badge.className   = "text-xs font-bold px-2 py-0.5 rounded-full bg-yellow-400 text-yellow-900";
       badge.classList.remove("hidden");
-      document.getElementById("dash-status").textContent = `Trial চলছে — ${days} দিন বাকি`;
+      document.getElementById("dash-status").textContent = `Trial চলছে — ${license.daysLeft ?? "?"} দিন বাকি`;
     } else {
       document.getElementById("dash-status").textContent = "Subscription সচল ✅";
     }
@@ -909,91 +723,106 @@
     } catch(e) { console.warn("Stats error:", e); }
   };
 
-    // ════════════════════════════════
-  // POS STATE
-  // ════════════════════════════════
-  let CART        = [];
+  // ── Pricing ──
+  window.selectPlan = (plan) => {
+    ["MONTHLY","YEARLY"].forEach(p => {
+      const el = document.getElementById("plan-"+p);
+      el.classList.toggle("border-blue-400",  p === plan && plan === "MONTHLY");
+      el.classList.toggle("border-green-400", p === plan && plan === "YEARLY");
+      el.classList.toggle("border-transparent", p !== plan);
+    });
+    localStorage.setItem("selected_plan", plan);
+    document.getElementById("payment-section").classList.remove("hidden");
+  };
+
+  window.submitPayment = async () => {
+    const txn   = document.getElementById("payment-txn").value.trim();
+    const plan  = localStorage.getItem("selected_plan") || "MONTHLY";
+    const email = window.APP.user?.email || "";
+    if (!txn) { showToast("Transaction ID দিন", "warning"); return; }
+
+    const btn = document.querySelector("#payment-section button");
+    btn.textContent = "⟳ জমা হচ্ছে...";
+    btn.disabled    = true;
+
+    try {
+      const result = await gasGet("submitPayment", { email, plan, txn_id: txn });
+      if (result.status === "OK") {
+        document.getElementById("payment-section").innerHTML = `
+          <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
+            <div class="text-3xl mb-2">✅</div>
+            <p class="font-bold text-green-700">Payment Request জমা হয়েছে!</p>
+            <p class="text-sm text-green-600 mt-1">TXN: ${txn}</p>
+            <p class="text-xs text-gray-500 mt-2">২৪ ঘণ্টার মধ্যে activate হবে।</p>
+          </div>`;
+      } else {
+        showToast(result.message || "সমস্যা হয়েছে", "error");
+        btn.textContent = "পেমেন্ট নিশ্চিত করুন →";
+        btn.disabled    = false;
+      }
+    } catch(err) {
+      showToast("Internet সমস্যা।", "error");
+      btn.textContent = "পেমেন্ট নিশ্চিত করুন →";
+      btn.disabled    = false;
+    }
+  };
+
+  // ── POS ──
+  let CART           = [];
   let PAYMENT_METHOD = "CASH";
   let SEARCH_TIMEOUT = null;
   let STOCK_CACHE    = [];
 
-  // ════════════════════════════════
-  // OPEN POS
-  // ════════════════════════════════
   window.openPOS = async () => {
     showScreen("screen-pos");
     clearCart();
-    // Pre-load stock cache
     try {
-      const res    = await gasGet("getStock", {});
-      STOCK_CACHE  = res.data || [];
+      const res  = await gasGet("getStock", {});
+      STOCK_CACHE = res.data || [];
+      showToast(`${STOCK_CACHE.length} টি stock loaded`, "info");
     } catch(e) {
-      STOCK_CACHE  = [];
-      showToast("Offline mode — stock data নেই", "warning");
+      STOCK_CACHE = [];
+      showToast("Offline mode", "warning");
     }
   };
 
-  // ════════════════════════════════
-  // DRUG SEARCH
-  // ════════════════════════════════
   window.searchDrugs = (query) => {
     clearTimeout(SEARCH_TIMEOUT);
     const resultsEl = document.getElementById("search-results");
-
     if (!query || query.length < 2) {
-      resultsEl.classList.add("hidden");
-      return;
+      resultsEl.classList.add("hidden"); return;
     }
-
     SEARCH_TIMEOUT = setTimeout(() => {
       const q       = query.toLowerCase();
       const matches = STOCK_CACHE.filter(s =>
-        s.brand_name?.toLowerCase().includes(q) &&
-        s.qty_in_stock_units > 0
+        s.brand_name?.toLowerCase().includes(q) && s.qty_in_stock_units > 0
       ).slice(0, 8);
 
       if (matches.length === 0) {
-        resultsEl.innerHTML = `
-          <p class="text-xs text-gray-400 text-center py-2">
-            "${query}" পাওয়া যায়নি
-          </p>`;
-        resultsEl.classList.remove("hidden");
-        return;
+        resultsEl.innerHTML = `<p class="text-xs text-gray-400 text-center py-2">"${query}" পাওয়া যায়নি</p>`;
+        resultsEl.classList.remove("hidden"); return;
       }
 
       resultsEl.innerHTML = matches.map(s => `
-        <div onclick='addToCart(${JSON.stringify(s)})'
+        <div onclick='addToCart(${JSON.stringify(s).replace(/'/g, "&#39;")})'
           class="flex items-center justify-between bg-blue-50 hover:bg-blue-100
             rounded-xl px-3 py-2 cursor-pointer transition-all">
           <div>
             <p class="text-sm font-semibold text-gray-800">${s.brand_name}</p>
             <p class="text-xs text-gray-500">
-              Batch: ${s.batch_number} |
-              Stock: ${s.qty_in_stock_units} পিস |
-              Exp: ${s.expiry_date}
+              Stock: ${s.qty_in_stock_units} পিস | Exp: ${s.expiry_date}
             </p>
           </div>
-          <div class="text-right">
-            <p class="text-sm font-bold text-blue-600">৳${s.mrp_per_unit}</p>
-            <p class="text-xs text-gray-400">প্রতি পিস</p>
-          </div>
+          <p class="text-sm font-bold text-blue-600">৳${s.mrp_per_unit}</p>
         </div>`).join("");
-
       resultsEl.classList.remove("hidden");
     }, 300);
   };
 
-  // ════════════════════════════════
-  // CART OPERATIONS
-  // ════════════════════════════════
   window.addToCart = (stock) => {
-    // Already in cart?
     const existing = CART.find(i => i.batch_id === stock.batch_id);
     if (existing) {
-      existing.qty = Math.min(
-        existing.qty + 1,
-        stock.qty_in_stock_units
-      );
+      existing.qty = Math.min(existing.qty + 1, stock.qty_in_stock_units);
     } else {
       CART.push({
         batch_id        : stock.batch_id,
@@ -1004,18 +833,15 @@
         mrp_per_unit    : parseFloat(stock.mrp_per_unit),
         tp_per_unit     : parseFloat(stock.tp_per_unit),
         discount_percent: 0,
-        max_qty         : stock.qty_in_stock_units,
+        max_qty         : parseInt(stock.qty_in_stock_units),
         expiry_date     : stock.expiry_date,
         batch_number    : stock.batch_number
       });
     }
-
-    // Hide search
     document.getElementById("search-results").classList.add("hidden");
     document.getElementById("drug-search").value = "";
-
     renderCart();
-    showToast(`${stock.brand_name} যোগ হয়েছে`, "success");
+    showToast(`${stock.brand_name} যোগ হয়েছে ✅`, "success");
   };
 
   window.removeFromCart = (batchId) => {
@@ -1027,10 +853,7 @@
     const item = CART.find(i => i.batch_id === batchId);
     if (!item) return;
     const newQty = parseInt(qty);
-    if (newQty <= 0) {
-      removeFromCart(batchId);
-      return;
-    }
+    if (newQty <= 0) { removeFromCart(batchId); return; }
     item.qty = Math.min(newQty, item.max_qty);
     renderCart();
   };
@@ -1043,26 +866,24 @@
   };
 
   window.clearCart = () => {
-    CART = [];
+    CART           = [];
     PAYMENT_METHOD = "CASH";
-    document.getElementById("drug-search").value    = "";
-    document.getElementById("amount-paid").value    = "";
-    document.getElementById("customer-name").value  = "";
-    document.getElementById("customer-phone").value = "";
-    document.getElementById("change-display").textContent = "৳0";
-    document.getElementById("search-results").classList.add("hidden");
+    ["drug-search","amount-paid","customer-name","customer-phone"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+    const cd = document.getElementById("change-display");
+    if (cd) cd.textContent = "৳0";
+    document.getElementById("search-results")?.classList.add("hidden");
     selectPayment("CASH");
     renderCart();
   };
 
-  // ════════════════════════════════
-  // RENDER CART
-  // ════════════════════════════════
   function renderCart() {
-    const container  = document.getElementById("cart-items");
-    const emptyMsg   = document.getElementById("cart-empty-msg");
-    const countEl    = document.getElementById("cart-count");
-    const totalSec   = document.getElementById("cart-total-section");
+    const container = document.getElementById("cart-items");
+    const emptyMsg  = document.getElementById("cart-empty-msg");
+    const countEl   = document.getElementById("cart-count");
+    const totalSec  = document.getElementById("cart-total-section");
 
     countEl.textContent = `${CART.length} items`;
 
@@ -1077,8 +898,7 @@
     emptyMsg.classList.add("hidden");
     totalSec.classList.remove("hidden");
 
-    let subtotal     = 0;
-    let totalDiscount = 0;
+    let subtotal = 0, totalDiscount = 0;
 
     container.innerHTML = CART.map(item => {
       const gross    = item.qty * item.mrp_per_unit;
@@ -1086,28 +906,25 @@
       const lineTotal = gross - disc;
       subtotal      += gross;
       totalDiscount += disc;
-
       return `
         <div class="bg-gray-50 rounded-xl p-3">
           <div class="flex items-start justify-between mb-2">
             <div class="flex-1">
               <p class="text-sm font-semibold text-gray-800">${item.brand_name}</p>
-              <p class="text-xs text-gray-500">
-                ৳${item.mrp_per_unit}/পিস | Exp: ${item.expiry_date}
-              </p>
+              <p class="text-xs text-gray-500">৳${item.mrp_per_unit}/পিস | Exp: ${item.expiry_date}</p>
             </div>
             <button onclick="removeFromCart('${item.batch_id}')"
               class="text-red-400 hover:text-red-600 ml-2 text-lg">✕</button>
           </div>
           <div class="flex items-center gap-2">
             <div class="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden">
-              <button onclick="updateQty('${item.batch_id}', ${item.qty - 1})"
-                class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold">−</button>
+              <button onclick="updateQty('${item.batch_id}', ${item.qty-1})"
+                class="px-2 py-1 bg-gray-100 font-bold">−</button>
               <input type="number" value="${item.qty}" min="1" max="${item.max_qty}"
                 onchange="updateQty('${item.batch_id}', this.value)"
                 class="w-12 text-center text-sm font-bold border-0 py-1" />
-              <button onclick="updateQty('${item.batch_id}', ${item.qty + 1})"
-                class="px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold">+</button>
+              <button onclick="updateQty('${item.batch_id}', ${item.qty+1})"
+                class="px-2 py-1 bg-gray-100 font-bold">+</button>
             </div>
             <div class="flex items-center gap-1 flex-1">
               <span class="text-xs text-gray-500">Disc%</span>
@@ -1124,60 +941,44 @@
     document.getElementById("cart-subtotal").textContent = `৳${subtotal.toFixed(2)}`;
     document.getElementById("cart-discount").textContent = `-৳${totalDiscount.toFixed(2)}`;
     document.getElementById("cart-total").textContent    = `৳${total.toFixed(2)}`;
-
     calcChange();
   }
 
-  // ════════════════════════════════
-  // PAYMENT
-  // ════════════════════════════════
   window.selectPayment = (method) => {
     PAYMENT_METHOD = method;
     ["CASH","BKASH","NAGAD"].forEach(m => {
-      const btn = document.getElementById("pay-" + m);
+      const btn = document.getElementById("pay-"+m);
       if (!btn) return;
-      if (m === method) {
-        btn.className = "payment-btn bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all";
-      } else {
-        btn.className = "payment-btn bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all";
-      }
+      btn.className = m === method
+        ? "bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all"
+        : "bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all";
     });
   };
 
   window.calcChange = () => {
-    const paid    = parseFloat(document.getElementById("amount-paid").value) || 0;
-    const total   = CART.reduce((sum, item) => {
+    const paid  = parseFloat(document.getElementById("amount-paid").value) || 0;
+    const total = CART.reduce((sum, item) => {
       const gross = item.qty * item.mrp_per_unit;
-      const disc  = gross * item.discount_percent / 100;
-      return sum + gross - disc;
+      return sum + gross - (gross * item.discount_percent / 100);
     }, 0);
-    const change  = paid - total;
-    const el      = document.getElementById("change-display");
-    el.textContent = `৳${Math.max(0, change).toFixed(2)}`;
-    el.className   = change >= 0
-      ? "font-bold text-green-600"
-      : "font-bold text-red-500";
+    const change = paid - total;
+    const el     = document.getElementById("change-display");
+    if (el) {
+      el.textContent = `৳${Math.max(0, change).toFixed(2)}`;
+      el.className   = change >= 0 ? "font-bold text-green-600" : "font-bold text-red-500";
+    }
   };
 
-  // ════════════════════════════════
-  // CHECKOUT
-  // ════════════════════════════════
   window.checkout = async () => {
-    if (CART.length === 0) {
-      showToast("Cart খালি!", "warning"); return;
-    }
+    if (CART.length === 0) { showToast("Cart খালি!", "warning"); return; }
 
-    const amountPaid = parseFloat(
-      document.getElementById("amount-paid").value
-    ) || 0;
+    const amountPaid = parseFloat(document.getElementById("amount-paid").value) || 0;
     const total = CART.reduce((sum, item) => {
       const gross = item.qty * item.mrp_per_unit;
       return sum + gross - (gross * item.discount_percent / 100);
     }, 0);
 
-    if (amountPaid < total) {
-      showToast("প্রদত্ত টাকা কম!", "warning"); return;
-    }
+    if (amountPaid < total) { showToast("প্রদত্ত টাকা কম!", "warning"); return; }
 
     const btn = document.getElementById("checkout-btn");
     btn.textContent = "⟳ সংরক্ষণ হচ্ছে...";
@@ -1200,14 +1001,13 @@
 
       if (result.status === "OK") {
         showInvoice(result.data, saleData);
-        showToast("✅ Invoice সংরক্ষিত হয়েছে!", "success");
+        showToast("✅ Invoice সংরক্ষিত!", "success");
       } else {
         showToast(result.message || "সমস্যা হয়েছে", "error");
         btn.textContent = "🧾 Invoice তৈরি করুন";
         btn.disabled    = false;
       }
-    } catch (err) {
-      // Offline — save to queue
+    } catch(err) {
       saveOfflineSale(saleData);
       showToast("Offline — পরে sync হবে", "warning");
       btn.textContent = "🧾 Invoice তৈরি করুন";
@@ -1215,12 +1015,8 @@
     }
   };
 
-  // ════════════════════════════════
-  // INVOICE DISPLAY
-  // ════════════════════════════════
   function showInvoice(data, saleData) {
     showScreen("screen-invoice");
-
     const pharmacyName = window.APP.license?.pharmacy_name || "ফার্মেসি";
     const now          = new Date().toLocaleString("bn-BD");
 
@@ -1228,11 +1024,8 @@
       <div class="text-center mb-4">
         <h2 class="text-lg font-bold text-gray-800">🏥 ${pharmacyName}</h2>
         <p class="text-xs text-gray-500">${now}</p>
-        <p class="text-sm font-bold text-blue-600 mt-1">
-          Invoice: ${data.invoice_number}
-        </p>
+        <p class="text-sm font-bold text-blue-600 mt-1">Invoice: ${data.invoice_number}</p>
       </div>
-
       <div class="border-t border-b border-gray-200 py-3 mb-3">
         ${saleData.items.map(item => {
           const gross = item.qty * item.mrp_per_unit;
@@ -1241,21 +1034,17 @@
             <div class="flex justify-between items-center mb-2">
               <div class="flex-1">
                 <p class="text-sm font-medium text-gray-800">${item.brand_name}</p>
-                <p class="text-xs text-gray-500">
-                  ${item.qty} × ৳${item.mrp_per_unit}
-                  ${item.discount_percent > 0
-                    ? `<span class="text-red-500">(-${item.discount_percent}%)</span>`
-                    : ""}
+                <p class="text-xs text-gray-500">${item.qty} × ৳${item.mrp_per_unit}
+                  ${item.discount_percent > 0 ? `<span class="text-red-500">(-${item.discount_percent}%)</span>` : ""}
                 </p>
               </div>
               <p class="font-bold text-gray-800">৳${(gross-disc).toFixed(2)}</p>
             </div>`;
         }).join("")}
       </div>
-
       <div class="space-y-1 mb-4">
         <div class="flex justify-between">
-          <span class="text-sm text-gray-600">Subtotal:</span>
+          <span class="text-sm text-gray-600">Total:</span>
           <span class="font-bold">৳${data.subtotal.toFixed(2)}</span>
         </div>
         <div class="flex justify-between">
@@ -1268,124 +1057,37 @@
         </div>
         <div class="flex justify-between border-t pt-1">
           <span class="text-sm font-bold">ফেরত:</span>
-          <span class="font-bold text-green-600">
-            ৳${data.change_returned.toFixed(2)}
-          </span>
+          <span class="font-bold text-green-600">৳${data.change_returned.toFixed(2)}</span>
         </div>
       </div>
-
-      <p class="text-center text-xs text-gray-400">
-        ধন্যবাদ আপনার ক্রয়ের জন্য 🙏
-      </p>`;
+      <p class="text-center text-xs text-gray-400">ধন্যবাদ আপনার ক্রয়ের জন্য 🙏</p>`;
   }
 
   window.printInvoice = () => window.print();
+  window.newSale = () => { clearCart(); showScreen("screen-pos"); };
 
-  window.newSale = () => {
-    clearCart();
-    showScreen("screen-pos");
-  };
-
-  // ════════════════════════════════
-  // OFFLINE SALE QUEUE
-  // ════════════════════════════════
   function saveOfflineSale(saleData) {
-    const queue = JSON.parse(
-      localStorage.getItem("pharmaos_offline_queue") || "[]"
-    );
-    queue.push({
-      ...saleData,
-      offline_id        : "OFF-" + Date.now(),
-      offline_created_at: new Date().toISOString()
-    });
+    const queue = JSON.parse(localStorage.getItem("pharmaos_offline_queue") || "[]");
+    queue.push({ ...saleData, offline_id: "OFF-"+Date.now(), offline_created_at: new Date().toISOString() });
     localStorage.setItem("pharmaos_offline_queue", JSON.stringify(queue));
   }
-  // ════════════════════════════════
-  // PRICING / PLAN
-  // ════════════════════════════════
-  window.selectPlan = (plan) => {
-    ["MONTHLY","YEARLY"].forEach(p => {
-      const el = document.getElementById("plan-"+p);
-      el.classList.toggle("border-blue-400",  p === plan && plan === "MONTHLY");
-      el.classList.toggle("border-green-400", p === plan && plan === "YEARLY");
-      el.classList.toggle("border-transparent", p !== plan);
-    });
-    localStorage.setItem("selected_plan", plan);
-    document.getElementById("payment-section").classList.remove("hidden");
-  };
 
-  window.submitPayment = async () => {
-  const txn   = document.getElementById("payment-txn").value.trim();
-  const plan  = localStorage.getItem("selected_plan") || "MONTHLY";
-  const email = window.APP.user?.email || "";
-
-  if (!txn) {
-    showToast("Transaction ID দিন", "warning");
-    return;
-  }
-  if (!email) {
-    showToast("আগে লগইন করুন", "error");
-    return;
-  }
-
-  const btn = document.querySelector("#payment-section button");
-  btn.textContent = "⟳ জমা হচ্ছে...";
-  btn.disabled    = true;
-
-  try {
-    const result = await gasGet("submitPayment", {
-      email  : email,
-      plan   : plan,
-      txn_id : txn
-    });
-
-    if (result.status === "OK") {
-      showToast("✅ Payment request জমা হয়েছে! ২৪ ঘণ্টার মধ্যে activate হবে।", "success");
-      btn.textContent = "✅ জমা হয়েছে";
-
-      // Success screen দেখান
-      document.getElementById("payment-section").innerHTML = `
-        <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-          <div class="text-3xl mb-2">✅</div>
-          <p class="font-bold text-green-700">Payment Request জমা হয়েছে!</p>
-          <p class="text-sm text-green-600 mt-1">TXN ID: ${txn}</p>
-          <p class="text-xs text-gray-500 mt-2">
-            ২৪ ঘণ্টার মধ্যে verify হলে আপনার email-এ notification পাবেন।
-          </p>
-        </div>
-      `;
-    } else {
-      showToast(result.message || "সমস্যা হয়েছে", "error");
-      btn.textContent = "পেমেন্ট নিশ্চিত করুন →";
-      btn.disabled    = false;
-    }
-  } catch (err) {
-    showToast("Internet সমস্যা। আবার চেষ্টা করুন।", "error");
-    btn.textContent = "পেমেন্ট নিশ্চিত করুন →";
-    btn.disabled    = false;
-  }
-};
-
-  // ════════════════════════════════
-  // FIREBASE ERROR MESSAGES (বাংলা)
-  // ════════════════════════════════
+  // ── Firebase Errors ──
   function _firebaseError(code) {
     const map = {
-      "auth/email-already-in-use"   : "এই email দিয়ে আগেই account আছে। লগইন করুন।",
-      "auth/invalid-email"          : "সঠিক email দিন।",
-      "auth/weak-password"          : "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে।",
-      "auth/user-not-found"         : "এই email দিয়ে কোনো account নেই।",
-      "auth/wrong-password"         : "পাসওয়ার্ড ভুল।",
-      "auth/invalid-credential"     : "ইমেইল বা পাসওয়ার্ড ভুল।",
-      "auth/too-many-requests"      : "অনেকবার চেষ্টা করা হয়েছে। কিছুক্ষণ পরে চেষ্টা করুন।",
-      "auth/network-request-failed" : "Internet সংযোগ নেই।"
+      "auth/email-already-in-use"  : "এই email দিয়ে আগেই account আছে।",
+      "auth/invalid-email"         : "সঠিক email দিন।",
+      "auth/weak-password"         : "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর।",
+      "auth/user-not-found"        : "এই email দিয়ে কোনো account নেই।",
+      "auth/wrong-password"        : "পাসওয়ার্ড ভুল।",
+      "auth/invalid-credential"    : "ইমেইল বা পাসওয়ার্ড ভুল।",
+      "auth/too-many-requests"     : "অনেকবার চেষ্টা হয়েছে। পরে চেষ্টা করুন।",
+      "auth/network-request-failed": "Internet সংযোগ নেই।"
     };
-    return map[code] || "কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।";
+    return map[code] || "কিছু একটা সমস্যা হয়েছে।";
   }
 
-  // ════════════════════════════════
-  // ONLINE STATUS
-  // ════════════════════════════════
+  // ── Online Status ──
   function updateOnline() {
     const dot   = document.getElementById("online-dot");
     const label = document.getElementById("online-label");
@@ -1403,9 +1105,7 @@
   window.addEventListener("offline", updateOnline);
   updateOnline();
 
-  // ════════════════════════════════
-  // SERVICE WORKER
-  // ════════════════════════════════
+  // ── Service Worker ──
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js").catch(()=>{});
   }
