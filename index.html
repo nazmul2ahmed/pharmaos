@@ -356,6 +356,12 @@
           <p class="font-semibold text-sm">ইনভেন্টরি</p>
           <p class="text-xs text-green-200 mt-0.5">আসছে শীঘ্রই</p>
         </button>
+        <button onclick="openCredits()"
+         class="bg-orange-500 hover:bg-orange-600 text-white rounded-2xl p-4 text-left transition-all shadow-lg">
+        <div class="text-2xl mb-2">📒</div>
+        <p class="font-semibold text-sm">বাকিদার</p>
+        <p class="text-xs text-orange-200 mt-0.5">বাকি তালিকা</p>
+       </button>
         <button onclick="loadStats()"
           class="bg-purple-600 hover:bg-purple-700 text-white rounded-2xl p-4 text-left transition-all shadow-lg">
           <div class="text-2xl mb-2">🔄</div>
@@ -441,19 +447,40 @@
       <!-- Payment -->
       <div class="glass-card rounded-2xl p-4 shadow-lg">
         <p class="font-bold text-gray-800 text-sm mb-3">💳 পেমেন্ট</p>
-        <div class="grid grid-cols-3 gap-2 mb-3">
-          <button onclick="selectPayment('CASH')" id="pay-CASH"
-            class="bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all">
-            💵 Cash
-          </button>
-          <button onclick="selectPayment('BKASH')" id="pay-BKASH"
-            class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
-            📱 bKash
-          </button>
-          <button onclick="selectPayment('NAGAD')" id="pay-NAGAD"
-            class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
-            📱 Nagad
-          </button>
+        <div class="grid grid-cols-2 gap-2 mb-3">
+      <button onclick="selectPayment('CASH')" id="pay-CASH"
+      class="bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all">
+    💵 Cash
+      </button>
+      <button onclick="selectPayment('BKASH')" id="pay-BKASH"
+        class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
+        📱 bKash
+      </button>
+      <button onclick="selectPayment('NAGAD')" id="pay-NAGAD"
+      class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
+      📱 Nagad
+      </button>
+      <button onclick="selectPayment('CREDIT')" id="pay-CREDIT"
+        class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
+        📒 বাকি
+      </button>
+    </div>
+
+      <!-- Credit partial payment section -->
+      <div id="credit-section" class="hidden bg-orange-50 border border-orange-200 rounded-xl p-3 mb-3">
+          <p class="text-xs font-semibold text-orange-700 mb-2">💰 আংশিক payment (ঐচ্ছিক)</p>
+       <div class="relative">
+        <span class="absolute left-3 top-2.5 text-gray-500 font-bold text-sm">৳</span>
+        <input id="credit-advance" type="number" placeholder="এখন কত দিচ্ছে?"
+          oninput="calcCreditDue()"
+          class="w-full border-2 border-orange-200 focus:border-orange-400 rounded-xl
+          pl-7 pr-4 py-2.5 text-sm transition-all" />
+        </div>
+          <div class="flex justify-between items-center mt-2 bg-white rounded-lg px-3 py-1.5">
+            <span class="text-xs text-gray-600">বাকি থাকবে:</span>
+            <span id="credit-due-display" class="font-bold text-orange-600 text-sm">৳0</span>
+          </div>
+          <p class="text-xs text-red-500 mt-1">⚠️ ক্রেতার নাম ও ফোন নম্বর দিতে হবে</p>
         </div>
         <div class="space-y-2">
           <div class="relative">
@@ -498,6 +525,63 @@
     </div>
   </div>
 
+  <!-- ════════════════ SCREEN: CREDITS ════════════════ -->
+<div id="screen-credits" class="screen hidden">
+  <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
+    <button onclick="showScreen('screen-dashboard')" class="text-white text-sm">← ফিরে যান</button>
+    <span class="text-white font-bold text-sm">📒 বাকিদার তালিকা</span>
+    <button onclick="loadCredits()" class="bg-white bg-opacity-20 text-white text-xs px-3 py-1.5 rounded-lg">
+      🔄 Refresh
+    </button>
+  </div>
+
+  <div class="px-4 pt-3 pb-6 space-y-3">
+
+    <!-- Summary -->
+    <div class="glass-card rounded-2xl p-4 shadow-lg">
+      <div class="grid grid-cols-3 gap-2">
+        <div class="bg-orange-50 rounded-xl p-3 text-center">
+          <p class="text-xl font-bold text-orange-600" id="credit-total-debtors">—</p>
+          <p class="text-xs text-gray-500">বাকিদার</p>
+        </div>
+        <div class="bg-red-50 rounded-xl p-3 text-center">
+          <p class="text-lg font-bold text-red-600" id="credit-total-due">—</p>
+          <p class="text-xs text-gray-500">মোট বাকি</p>
+        </div>
+        <div class="bg-green-50 rounded-xl p-3 text-center">
+          <p class="text-xl font-bold text-green-600" id="credit-paid-count">—</p>
+          <p class="text-xs text-gray-500">পরিশোধিত</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="glass-card rounded-2xl p-3 shadow-lg">
+      <input id="credit-search" type="text" placeholder="নাম বা ফোন দিয়ে খুঁজুন..."
+        oninput="searchCredits(this.value)"
+        class="w-full border-2 border-gray-200 focus:border-orange-400 rounded-xl
+          px-4 py-2.5 text-sm transition-all" />
+    </div>
+
+    <!-- Credits List -->
+    <div id="credits-list" class="space-y-2">
+      <div class="glass-card rounded-2xl p-4 text-center">
+        <p class="text-gray-400 text-sm">Loading...</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════ SCREEN: CREDIT DETAIL ════════════════ -->
+<div id="screen-credit-detail" class="screen hidden">
+  <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
+    <button onclick="showScreen('screen-credits')" class="text-white text-sm">← ফিরে যান</button>
+    <span class="text-white font-bold text-sm">💳 Payment নিন</span>
+    <span></span>
+  </div>
+  <div class="px-4 pt-3 pb-6" id="credit-detail-content"></div>
+</div>
   <!-- ════════════════ FIREBASE + APP LOGIC ════════════════ -->
   <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -945,15 +1029,27 @@
   }
 
   window.selectPayment = (method) => {
-    PAYMENT_METHOD = method;
-    ["CASH","BKASH","NAGAD"].forEach(m => {
-      const btn = document.getElementById("pay-"+m);
-      if (!btn) return;
-      btn.className = m === method
-        ? "bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all"
-        : "bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all";
-    });
-  };
+  PAYMENT_METHOD = method;
+  ["CASH","BKASH","NAGAD","CREDIT"].forEach(m => {
+    const btn = document.getElementById("pay-"+m);
+    if (!btn) return;
+    btn.className = m === method
+      ? "bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all"
+      : "bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all";
+  });
+
+  // Credit section দেখানো/লুকানো
+  const creditSection = document.getElementById("credit-section");
+  const amountPaidDiv = document.getElementById("amount-paid").parentElement.parentElement;
+  if (method === "CREDIT") {
+    creditSection.classList.remove("hidden");
+    // Amount paid optional for credit
+    document.getElementById("amount-paid").placeholder = "Advance (ঐচ্ছিক)";
+  } else {
+    creditSection.classList.add("hidden");
+    document.getElementById("amount-paid").placeholder = "প্রদত্ত টাকা";
+  }
+};
 
   window.calcChange = () => {
     const paid  = parseFloat(document.getElementById("amount-paid").value) || 0;
@@ -969,6 +1065,22 @@
     }
   };
 
+    window.calcCreditDue = () => {
+  const advance = parseFloat(document.getElementById("credit-advance").value) || 0;
+  const total   = CART.reduce((sum, item) => {
+    const gross = item.qty * item.mrp_per_unit;
+    return sum + gross - (gross * item.discount_percent / 100);
+  }, 0);
+  const due = total - advance;
+  const el  = document.getElementById("credit-due-display");
+  if (el) {
+    el.textContent = `৳${Math.max(0, due).toFixed(2)}`;
+    el.className   = due > 0
+      ? "font-bold text-orange-600 text-sm"
+      : "font-bold text-green-600 text-sm";
+  }
+};
+    
   window.checkout = async () => {
     if (CART.length === 0) { showToast("Cart খালি!", "warning"); return; }
 
@@ -984,15 +1096,30 @@
     btn.textContent = "⟳ সংরক্ষণ হচ্ছে...";
     btn.disabled    = true;
 
-    const saleData = {
-      items          : CART,
-      customer_name  : document.getElementById("customer-name").value,
-      customer_phone : document.getElementById("customer-phone").value,
-      payment_method : PAYMENT_METHOD,
-      amount_paid    : amountPaid,
-      sold_by        : window.APP.user?.email || ""
-    };
+        // Credit হলে advance amount নিন
+  const creditAdvance = PAYMENT_METHOD === "CREDIT"
+    ? parseFloat(document.getElementById("credit-advance").value) || 0
+    : amountPaid;
 
+  // Credit এ customer info mandatory
+  const customerName  = document.getElementById("customer-name").value.trim();
+  const customerPhone = document.getElementById("customer-phone").value.trim();
+
+  if (PAYMENT_METHOD === "CREDIT" && (!customerName || !customerPhone)) {
+    showToast("বাকি বিক্রিতে ক্রেতার নাম ও ফোন আবশ্যক!", "error");
+    btn.textContent = "🧾 Invoice তৈরি করুন";
+    btn.disabled    = false;
+    return;
+  }
+
+  const saleData = {
+    items          : CART,
+    customer_name  : customerName,
+    customer_phone : customerPhone,
+    payment_method : PAYMENT_METHOD,
+    amount_paid    : PAYMENT_METHOD === "CREDIT" ? creditAdvance : amountPaid,
+    sold_by        : window.APP.user?.email || ""
+  };
     try {
       const result = await gasGet("saveSale", {
         ...saleData,
@@ -1000,6 +1127,18 @@
       });
 
       if (result.status === "OK") {
+        // Credit হলে Credit_Ledger-এ save করুন
+        if (PAYMENT_METHOD === "CREDIT") {
+          const creditAdvanceAmt = parseFloat(
+            document.getElementById("credit-advance").value) || 0;
+          await gasGet("saveCreditSale", {
+            invoice_number : result.data.invoice_number,
+            customer_name  : saleData.customer_name,
+            customer_phone : saleData.customer_phone,
+            total_amount   : result.data.subtotal,
+            paid_amount    : creditAdvanceAmt
+          });
+        }
         showInvoice(result.data, saleData);
         showToast("✅ Invoice সংরক্ষিত!", "success");
       } else {
@@ -1071,7 +1210,179 @@
     queue.push({ ...saleData, offline_id: "OFF-"+Date.now(), offline_created_at: new Date().toISOString() });
     localStorage.setItem("pharmaos_offline_queue", JSON.stringify(queue));
   }
+// ── Credit Management ──
+  let ALL_CREDITS = [];
 
+  window.openCredits = async () => {
+    showScreen("screen-credits");
+    await loadCredits();
+  };
+
+  window.loadCredits = async () => {
+    try {
+      const [listRes, summaryRes] = await Promise.all([
+        gasGet("getCredits", {}),
+        gasGet("getCreditSummary", {})
+      ]);
+
+      ALL_CREDITS = listRes.data?.credits || [];
+      const summary = summaryRes.data || {};
+
+      document.getElementById("credit-total-debtors").textContent =
+        summary.total_debtors ?? "0";
+      document.getElementById("credit-total-due").textContent =
+        `৳${summary.total_due ?? 0}`;
+      document.getElementById("credit-paid-count").textContent =
+        summary.paid_count ?? "0";
+
+      renderCreditsList(ALL_CREDITS);
+    } catch(e) {
+      showToast("Credits load হয়নি", "error");
+    }
+  };
+
+  function renderCreditsList(credits) {
+    const container = document.getElementById("credits-list");
+
+    if (credits.length === 0) {
+      container.innerHTML = `
+        <div class="glass-card rounded-2xl p-6 text-center">
+          <div class="text-4xl mb-2">✅</div>
+          <p class="font-bold text-gray-700">কোনো বাকি নেই!</p>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = credits.map(c => `
+      <div class="glass-card rounded-2xl p-4 shadow-lg">
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <p class="font-bold text-gray-800">${c.customer_name}</p>
+            <p class="text-xs text-gray-500">📞 ${c.customer_phone}</p>
+            <p class="text-xs text-gray-400">Invoice: ${c.invoice_number} | ${c.sale_date}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-lg font-bold text-red-600">৳${c.due_amount}</p>
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium
+              ${c.status === 'PARTIAL'
+                ? 'bg-yellow-100 text-yellow-700'
+                : 'bg-red-100 text-red-700'}">
+              ${c.status === 'PARTIAL' ? 'আংশিক' : 'বাকি'}
+            </span>
+          </div>
+        </div>
+        <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+          <span>মোট: ৳${c.total_amount}</span>
+          <span>পরিশোধ: ৳${c.paid_amount}</span>
+        </div>
+        <button onclick="openCreditDetail('${c.credit_id}')"
+          class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold
+            py-2.5 rounded-xl text-sm transition-all">
+          💰 Payment নিন
+        </button>
+      </div>`).join("");
+  }
+
+  window.searchCredits = (query) => {
+    if (!query) { renderCreditsList(ALL_CREDITS); return; }
+    const q       = query.toLowerCase();
+    const filtered = ALL_CREDITS.filter(c =>
+      c.customer_name?.toLowerCase().includes(q) ||
+      c.customer_phone?.includes(q)
+    );
+    renderCreditsList(filtered);
+  };
+
+  window.openCreditDetail = (creditId) => {
+    const credit = ALL_CREDITS.find(c => c.credit_id === creditId);
+    if (!credit) return;
+
+    showScreen("screen-credit-detail");
+    document.getElementById("credit-detail-content").innerHTML = `
+      <div class="glass-card rounded-2xl p-5 shadow-xl mb-4">
+        <div class="text-center mb-4">
+          <div class="text-4xl mb-2">👤</div>
+          <h2 class="text-lg font-bold text-gray-800">${credit.customer_name}</h2>
+          <p class="text-sm text-gray-500">📞 ${credit.customer_phone}</p>
+        </div>
+        <div class="space-y-2 bg-gray-50 rounded-xl p-3 mb-4">
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-600">Invoice:</span>
+            <span class="font-medium text-sm">${credit.invoice_number}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-600">মোট বিল:</span>
+            <span class="font-bold">৳${credit.total_amount}</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-600">পরিশোধিত:</span>
+            <span class="font-medium text-green-600">৳${credit.paid_amount}</span>
+          </div>
+          <div class="flex justify-between border-t pt-2">
+            <span class="text-sm font-bold text-gray-800">বাকি:</span>
+            <span class="font-bold text-red-600 text-lg">৳${credit.due_amount}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-2xl p-5 shadow-xl">
+        <p class="font-bold text-gray-800 mb-3">💰 Payment গ্রহণ করুন</p>
+        <div class="relative mb-3">
+          <span class="absolute left-3 top-3 text-gray-500 font-bold">৳</span>
+          <input id="payment-input" type="number"
+            placeholder="কত টাকা নিচ্ছেন?"
+            max="${credit.due_amount}"
+            class="w-full border-2 border-gray-200 focus:border-green-400
+              rounded-xl pl-7 pr-4 py-3 text-sm transition-all" />
+        </div>
+        <div class="grid grid-cols-3 gap-2 mb-3">
+          <button onclick="setQuickPayment(${credit.due_amount * 0.5}, ${credit.due_amount})"
+            class="bg-gray-100 text-gray-700 text-xs font-medium py-2 rounded-lg">
+            50%
+          </button>
+          <button onclick="setQuickPayment(${credit.due_amount * 0.75}, ${credit.due_amount})"
+            class="bg-gray-100 text-gray-700 text-xs font-medium py-2 rounded-lg">
+            75%
+          </button>
+          <button onclick="setQuickPayment(${credit.due_amount}, ${credit.due_amount})"
+            class="bg-green-100 text-green-700 text-xs font-medium py-2 rounded-lg">
+            সম্পূর্ণ
+          </button>
+        </div>
+        <button onclick="submitCreditPayment('${credit.credit_id}')"
+          class="w-full bg-green-500 hover:bg-green-600 text-white font-bold
+            py-3.5 rounded-xl shadow-md transition-all">
+          ✅ Payment নিশ্চিত করুন
+        </button>
+      </div>`;
+  };
+
+  window.setQuickPayment = (amount, max) => {
+    document.getElementById("payment-input").value =
+      Math.min(amount, max).toFixed(2);
+  };
+
+  window.submitCreditPayment = async (creditId) => {
+    const amount = parseFloat(document.getElementById("payment-input").value) || 0;
+    if (amount <= 0) { showToast("পরিমাণ দিন", "warning"); return; }
+
+    try {
+      const result = await gasGet("recordCreditPayment", {
+        credit_id      : creditId,
+        payment_amount : amount
+      });
+
+      if (result.status === "OK") {
+        showToast(result.message, "success");
+        await loadCredits();
+        showScreen("screen-credits");
+      } else {
+        showToast(result.message, "error");
+      }
+    } catch(e) {
+      showToast("সমস্যা হয়েছে", "error");
+    }
+  };
   // ── Firebase Errors ──
   function _firebaseError(code) {
     const map = {
