@@ -1,16 +1,15 @@
 // ============================================================
-// FILE: sw.js — Service Worker (Offline Engine)
-// VERSION: 1.0.0
+// FILE: sw.js — Service Worker (Auto-Update Engine)
+// VERSION: 2.0.0
 // ============================================================
 
-const CACHE_NAME    = "pharmaos-v1.0.0";
-const OFFLINE_URLS  = [
+const CACHE_NAME   = "pharmaos-v2.0.0";
+const OFFLINE_URLS = [
   "/pharmaos/",
-  "/pharmaos/index.html",
   "/pharmaos/manifest.json"
 ];
 
-// Install — cache core files
+// Install — cache core shell, activate immediately
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -19,25 +18,52 @@ self.addEventListener("install", event => {
   );
 });
 
-// Activate — clean old caches
+// Activate — delete old caches, take control immediately
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
+    caches.keys()
+      .then(keys => Promise.all(
         keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-      )
-    ).then(() => self.clients.claim())
+      ))
+      .then(() => self.clients.claim())
   );
 });
 
-// Fetch — serve from cache, fallback to network
+// Fetch strategy:
+// - GAS API calls → always network (never cache API responses)
+// - index.html / navigation → network-first, fallback to cache (so updates show immediately when online)
+// - other static assets → cache-first
 self.addEventListener("fetch", event => {
-  // Skip GAS API calls — always go to network
-  if (event.request.url.includes("script.google.com")) return;
+  const req = event.request;
+
+  if (req.url.includes("script.google.com")) {
+    return; // let it go straight to network
+  }
+
+  const isNavigation = req.mode === "navigate" ||
+    (req.method === "GET" && req.headers.get("accept")?.includes("text/html"));
+
+  if (isNavigation) {
+    event.respondWith(
+      fetch(req)
+        .then(res => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+          return res;
+        })
+        .catch(() => caches.match(req).then(c => c || caches.match("/pharmaos/")))
+    );
+    return;
+  }
 
   event.respondWith(
-    caches.match(event.request)
-      .then(cached => cached || fetch(event.request))
-      .catch(() => caches.match("/pharmaos/index.html"))
+    caches.match(req).then(cached => cached || fetch(req))
   );
+});
+
+// Listen for skip-waiting message from the page (used for manual update prompt)
+self.addEventListener("message", event => {
+  if (event.data === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
