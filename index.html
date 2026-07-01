@@ -1304,6 +1304,84 @@
     calcChange();
     calcCreditDue();
   }
+      // ════════════════════════════════
+  // CHECKOUT
+  // ════════════════════════════════
+  window.checkout = async () => {
+    if (CART.length === 0) { showToast("Cart খালি!", "warning"); return; }
+    if (IS_SUBMITTING) return; // Double-submit guard
+
+    const total         = getCartTotal();
+    const amountPaid    = parseFloat(document.getElementById("amount-paid").value) || 0;
+    const creditAdvance = parseFloat(document.getElementById("credit-advance")?.value) || 0;
+    const customerName  = document.getElementById("customer-name").value.trim();
+    const customerPhone = document.getElementById("customer-phone").value.trim();
+
+    // Validation
+    if (PAYMENT_METHOD !== "CREDIT" && amountPaid < total) {
+      showToast("প্রদত্ত টাকা মোট বিলের চেয়ে কম!", "warning"); return;
+    }
+    if (PAYMENT_METHOD === "CREDIT" && (!customerName || !customerPhone)) {
+      showToast("বাকি বিক্রিতে ক্রেতার নাম ও ফোন আবশ্যক!", "error"); return;
+    }
+
+    IS_SUBMITTING = true;
+    const btn     = document.getElementById("checkout-btn");
+    btn.textContent = "⟳ সংরক্ষণ হচ্ছে...";
+    btn.disabled    = true;
+
+    const requestId = "REQ-" + Date.now();
+    const saleData  = {
+      items             : CART,
+      customer_name     : customerName,
+      customer_phone    : customerPhone,
+      payment_method    : PAYMENT_METHOD,
+      amount_paid       : PAYMENT_METHOD === "CREDIT" ? creditAdvance : amountPaid,
+      sold_by           : window.APP.user?.email || "",
+      client_request_id : requestId
+    };
+
+    // Deduct from local cache immediately (offline-safe)
+    CART.forEach(item => deductFromCache(item.batch_id, item.qty));
+
+    if (!navigator.onLine) {
+      saveOfflineSale(saleData);
+      showOfflineInvoice(saleData, total, creditAdvance);
+      showToast("✅ Offline invoice তৈরি — পরে sync হবে", "warning");
+      return;
+    }
+
+    try {
+      const result = await gasGet("saveSale", {
+        ...saleData,
+        items: JSON.stringify(saleData.items)
+      });
+
+      if (result.status === "OK") {
+        // Credit হলে Credit_Ledger-এ save
+        if (PAYMENT_METHOD === "CREDIT") {
+          await gasGet("saveCreditSale", {
+            invoice_number : result.data.invoice_number,
+            customer_name  : customerName,
+            customer_phone : customerPhone,
+            total_amount   : result.data.subtotal,
+            paid_amount    : creditAdvance
+          });
+        }
+        showInvoice(result.data, saleData);
+        showToast("✅ Invoice সংরক্ষিত!", "success");
+      } else {
+        showToast(result.message || "সমস্যা হয়েছে", "error");
+        IS_SUBMITTING = false;
+        btn.textContent = "🧾 Invoice তৈরি করুন";
+        btn.disabled    = false;
+      }
+    } catch(err) {
+      saveOfflineSale(saleData);
+      showOfflineInvoice(saleData, total, creditAdvance);
+      showToast("Offline — পরে sync হবে", "warning");
+    }
+  };
   // ════════════════════════════════
   // INVOICE DISPLAY
   // ════════════════════════════════
