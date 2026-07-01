@@ -677,8 +677,9 @@
     try {
       const res = await gasGet("getStock", {});
       if (res.data && res.data.length >= 0) {
-        saveStockCache(res.data);
-        STOCK_CACHE = res.data;
+        const fixed = res.data.map(fixStockItem); // ← .map() যোগ করুন
+        saveStockCache(fixed);
+        STOCK_CACHE = fixed;
         const cacheEl = document.getElementById("cache-status");
         if (cacheEl) {
           cacheEl.textContent = `📦 Stock cache updated: ${getCacheTimestamp()}`;
@@ -1012,6 +1013,19 @@
   let STOCK_CACHE    = [];
   let IS_SUBMITTING  = false;
 
+    // Stock item-এর Date objects কে string-এ convert করা
+  function fixStockItem(s) {
+    return {
+      ...s,
+      expiry_date: s.expiry_date
+        ? String(s.expiry_date).substring(0, 7) // "MM/YYYY" বা ISO থেকে প্রথম ৭ char
+        : "",
+      mrp_per_unit  : parseFloat(s.mrp_per_unit)   || 0,
+      tp_per_unit   : parseFloat(s.tp_per_unit)    || 0,
+      qty_in_stock_units: parseInt(s.qty_in_stock_units) || 0
+    };
+  }
+
   // ════════════════════════════════
   // OPEN POS — cache থেকে instant load
   // ════════════════════════════════
@@ -1019,16 +1033,26 @@
     showScreen("screen-pos");
     clearCart();
 
-    // ১. Cache থেকে instant load
     const cached = loadStockCache();
     if (cached && cached.length > 0) {
-      STOCK_CACHE = cached;
+      STOCK_CACHE = cached.map(fixStockItem); // ← এই .map() যোগ করুন
       showToast(`${STOCK_CACHE.length} টি stock loaded (cache)`, "info");
       document.getElementById("pos-offline-banner").classList.toggle(
         "hidden", navigator.onLine
       );
     }
 
+    if (navigator.onLine) {
+      try {
+        const res = await gasGet("getStock", {});
+        if (res.data) {
+          STOCK_CACHE = res.data.map(fixStockItem); // ← এই .map() যোগ করুন
+          saveStockCache(STOCK_CACHE);
+          document.getElementById("pos-offline-banner").classList.add("hidden");
+        }
+      } catch(e) {}
+    }
+  };
     // ২. Background-এ fresh data নিয়ে আসুন
     if (navigator.onLine) {
       try {
