@@ -1013,66 +1013,58 @@
   let STOCK_CACHE    = [];
   let IS_SUBMITTING  = false;
 
-    // Stock item-এর Date objects কে string-এ convert করা
-  function fixStockItem(s) {
+  function fixStock(s) {
+    const exp = s.expiry_date || s.expiry_date_iso || "";
+    const expStr = exp instanceof Date
+      ? `${String(exp.getMonth()+1).padStart(2,"0")}/${exp.getFullYear()}`
+      : String(exp).substring(0,7);
     return {
-      ...s,
-      expiry_date: s.expiry_date
-        ? String(s.expiry_date).substring(0, 7) // "MM/YYYY" বা ISO থেকে প্রথম ৭ char
-        : "",
-      mrp_per_unit  : parseFloat(s.mrp_per_unit)   || 0,
-      tp_per_unit   : parseFloat(s.tp_per_unit)    || 0,
-      qty_in_stock_units: parseInt(s.qty_in_stock_units) || 0
+      batch_id           : String(s.batch_id || ""),
+      drug_id            : String(s.drug_id  || ""),
+      brand_name         : String(s.brand_name || ""),
+      batch_number       : String(s.batch_number || ""),
+      expiry_date        : expStr,
+      mrp_per_unit       : parseFloat(s.mrp_per_unit)        || 0,
+      tp_per_unit        : parseFloat(s.tp_per_unit)         || 0,
+      qty_in_stock_units : parseInt(s.qty_in_stock_units)    || 0,
+      unit_type          : String(s.unit_type || "পিস"),
+      rack_location      : String(s.rack_location || "")
     };
   }
 
   // ════════════════════════════════
-  // OPEN POS — cache থেকে instant load
+  // OPEN POS
   // ════════════════════════════════
   window.openPOS = async () => {
     showScreen("screen-pos");
     clearCart();
 
+    // ১. Cache থেকে instant load
     const cached = loadStockCache();
     if (cached && cached.length > 0) {
-      STOCK_CACHE = cached.map(fixStockItem); // ← এই .map() যোগ করুন
-      showToast(`${STOCK_CACHE.length} টি stock loaded (cache)`, "info");
-      document.getElementById("pos-offline-banner").classList.toggle(
-        "hidden", navigator.onLine
-      );
+      STOCK_CACHE = cached.map(fixStock);
+      document.getElementById("pos-offline-banner")
+        .classList.toggle("hidden", navigator.onLine);
     }
 
+    // ২. Background refresh
     if (navigator.onLine) {
       try {
         const res = await gasGet("getStock", {});
-        if (res.data) {
-          STOCK_CACHE = res.data.map(fixStockItem); // ← এই .map() যোগ করুন
-          saveStockCache(STOCK_CACHE);
-          document.getElementById("pos-offline-banner").classList.add("hidden");
-        }
-      } catch(e) {}
-    }
-  };
-    // ২. Background-এ fresh data নিয়ে আসুন
-    if (navigator.onLine) {
-      try {
-        const res = await gasGet("getStock", {});
-        if (res.data) {
-          STOCK_CACHE = res.data;
+        if (res.data && res.data.length > 0) {
+          STOCK_CACHE = res.data.map(fixStock);
           saveStockCache(res.data);
-          // অনলাইনে আসলে banner লুকিয়ে দিন
           document.getElementById("pos-offline-banner").classList.add("hidden");
+          showToast(`${STOCK_CACHE.length} টি stock loaded ✅`, "success");
         }
       } catch(e) {
-        // Cache already loaded above, just stay offline
+        showToast("Offline mode — cache থেকে চলছে", "warning");
       }
     }
   };
 
   window.confirmLeavePOS = () => {
-    if (CART.length > 0) {
-      if (!confirm("Cart-এ items আছে। ফিরে যাবেন?")) return;
-    }
+    if (CART.length > 0 && !confirm("Cart-এ items আছে। ফিরে যাবেন?")) return;
     showScreen("screen-dashboard");
   };
 
@@ -1088,27 +1080,29 @@
     SEARCH_TIMEOUT = setTimeout(() => {
       const q       = query.toLowerCase();
       const matches = STOCK_CACHE.filter(s =>
-        s.brand_name?.toLowerCase().includes(q) && s.qty_in_stock_units > 0
+        s.brand_name.toLowerCase().includes(q) && s.qty_in_stock_units > 0
       ).slice(0, 8);
 
-      if (matches.length === 0) {
+      if (!matches.length) {
         resultsEl.innerHTML = `
-          <div class="text-center py-3">
-            <p class="text-xs text-gray-400">"${query}" — stock-এ নেই বা বিক্রি শেষ</p>
+          <div class="text-center py-3 text-xs text-gray-400">
+            "${query}" — stock-এ নেই বা বিক্রি শেষ
           </div>`;
-        resultsEl.classList.remove("hidden"); return;
+        resultsEl.classList.remove("hidden");
+        return;
       }
 
-      resultsEl.innerHTML = matches.map(s => `
-        <div onclick='addToCart(${JSON.stringify(s).replace(/'/g, "&#39;")})'
-          class="flex items-center justify-between bg-gradient-to-r from-blue-50 to-white
-            hover:from-blue-100 rounded-xl px-3 py-2.5 cursor-pointer transition-all border
-            border-blue-100 hover:border-blue-300">
+      resultsEl.innerHTML = matches.map((s, i) => `
+        <div data-idx="${i}" data-bid="${s.batch_id}"
+          class="search-result-item flex items-center justify-between
+            bg-gradient-to-r from-blue-50 to-white hover:from-blue-100
+            rounded-xl px-3 py-2.5 cursor-pointer transition-all
+            border border-blue-100 hover:border-blue-300">
           <div class="flex-1">
             <p class="text-sm font-bold text-gray-800">${s.brand_name}</p>
             <p class="text-xs text-gray-500">
-              📦 ${s.qty_in_stock_units} পিস বাকি
-              &nbsp;|&nbsp; ⏰ ${s.expiry_date}
+              📦 ${s.qty_in_stock_units} পিস বাকি &nbsp;|&nbsp;
+              ⏰ ${s.expiry_date}
             </p>
           </div>
           <div class="text-right ml-3">
@@ -1116,12 +1110,22 @@
             <p class="text-xs text-gray-400">প্রতি পিস</p>
           </div>
         </div>`).join("");
+
+      // event delegation — onclick attribute avoid করছি
+      resultsEl.querySelectorAll(".search-result-item").forEach(el => {
+        el.addEventListener("click", () => {
+          const bid   = el.dataset.bid;
+          const stock = STOCK_CACHE.find(s => s.batch_id === bid);
+          if (stock) addToCart(stock);
+        });
+      });
+
       resultsEl.classList.remove("hidden");
     }, 250);
   };
 
   // ════════════════════════════════
-  // CART OPERATIONS
+  // CART
   // ════════════════════════════════
   window.addToCart = (stock) => {
     const existing = CART.find(i => i.batch_id === stock.batch_id);
@@ -1135,12 +1139,12 @@
         batch_id        : stock.batch_id,
         drug_id         : stock.drug_id,
         brand_name      : stock.brand_name,
-        unit_type       : stock.unit_type || "পিস",
+        unit_type       : stock.unit_type,
         qty             : 1,
-        mrp_per_unit    : parseFloat(stock.mrp_per_unit),
-        tp_per_unit     : parseFloat(stock.tp_per_unit) || 0,
+        mrp_per_unit    : stock.mrp_per_unit,
+        tp_per_unit     : stock.tp_per_unit,
         discount_percent: 0,
-        max_qty         : parseInt(stock.qty_in_stock_units),
+        max_qty         : stock.qty_in_stock_units,
         expiry_date     : stock.expiry_date,
         batch_number    : stock.batch_number
       });
@@ -1156,24 +1160,31 @@
     renderCart();
   };
 
-  window.updateQty = (batchId, qty) => {
+  window.updateCartQty = (batchId, delta) => {
     const item = CART.find(i => i.batch_id === batchId);
     if (!item) return;
-    const newQty = parseInt(qty);
+    const newQty = item.qty + delta;
     if (newQty <= 0) { removeFromCart(batchId); return; }
     if (newQty > item.max_qty) {
-      showToast(`সর্বোচ্চ ${item.max_qty} পিস available`, "warning");
-      item.qty = item.max_qty;
-    } else {
-      item.qty = newQty;
+      showToast(`সর্বোচ্চ ${item.max_qty} পিস available`, "warning"); return;
     }
+    item.qty = newQty;
     renderCart();
   };
 
-  window.updateDiscount = (batchId, disc) => {
+  window.setCartQty = (batchId, val) => {
     const item = CART.find(i => i.batch_id === batchId);
     if (!item) return;
-    item.discount_percent = Math.min(parseFloat(disc) || 0, 100);
+    const newQty = parseInt(val) || 1;
+    if (newQty <= 0) { removeFromCart(batchId); return; }
+    item.qty = Math.min(newQty, item.max_qty);
+    renderCart();
+  };
+
+  window.setCartDisc = (batchId, val) => {
+    const item = CART.find(i => i.batch_id === batchId);
+    if (!item) return;
+    item.discount_percent = Math.min(parseFloat(val) || 0, 100);
     renderCart();
   };
 
@@ -1181,11 +1192,10 @@
     CART           = [];
     PAYMENT_METHOD = "CASH";
     IS_SUBMITTING  = false;
-    ["drug-search","amount-paid","customer-name","customer-phone","credit-advance"]
-      .forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "";
-      });
+    ["drug-search","amount-paid","customer-name",
+     "customer-phone","credit-advance"].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = "";
+    });
     const cd = document.getElementById("change-display");
     if (cd) cd.textContent = "৳0";
     const cdd = document.getElementById("credit-due-display");
@@ -1202,6 +1212,9 @@
     }, 0);
   }
 
+  // ════════════════════════════════
+  // RENDER CART
+  // ════════════════════════════════
   function renderCart() {
     const container = document.getElementById("cart-items");
     const emptyMsg  = document.getElementById("cart-empty-msg");
@@ -1223,194 +1236,74 @@
 
     let subtotal = 0, totalDiscount = 0;
 
-    container.innerHTML = CART.map(item => {
+    // DOM তৈরি করছি — string concatenation এ quote issue নেই
+    const fragment = document.createDocumentFragment();
+
+    CART.forEach(item => {
       const gross     = item.qty * item.mrp_per_unit;
       const disc      = gross * item.discount_percent / 100;
       const lineTotal = gross - disc;
       subtotal       += gross;
       totalDiscount  += disc;
-      return `
-        <div class="bg-gradient-to-r from-gray-50 to-white rounded-xl p-3 border border-gray-100">
-          <div class="flex items-start justify-between mb-2">
-            <div class="flex-1">
-              <p class="text-sm font-bold text-gray-800">${item.brand_name}</p>
-              <p class="text-xs text-gray-400">
-                ৳${item.mrp_per_unit}/পিস &nbsp;|&nbsp; Exp: ${item.expiry_date}
-                &nbsp;|&nbsp; স্টক: ${item.max_qty}
-              </p>
-            </div>
-            <button onclick="removeFromCart('${item.batch_id}')"
-              class="text-red-400 hover:text-red-600 ml-2 text-lg leading-none">✕</button>
-          </div>
-          <div class="flex items-center gap-2">
-            <div class="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
-              <button onclick="updateQty('${item.batch_id}', ${item.qty-1})"
-                class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 font-bold text-gray-700">−</button>
-              <input type="number" value="${item.qty}" min="1" max="${item.max_qty}"
-                onchange="updateQty('${item.batch_id}', this.value)"
-                class="w-12 text-center text-sm font-bold border-0 py-1.5 focus:outline-none" />
-              <button onclick="updateQty('${item.batch_id}', ${item.qty+1})"
-                class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 font-bold text-gray-700">+</button>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="text-xs text-gray-500">Disc%</span>
-              <input type="number" value="${item.discount_percent}" min="0" max="100"
-                onchange="updateDiscount('${item.batch_id}', this.value)"
-                class="w-14 border-2 border-gray-200 rounded-lg px-2 py-1 text-xs
-                  text-center focus:outline-none focus:border-blue-400" />
-            </div>
-            <p class="font-bold text-blue-600 text-sm ml-auto">৳${lineTotal.toFixed(2)}</p>
-          </div>
-        </div>`;
-    }).join("");
 
+      const div = document.createElement("div");
+      div.className = "bg-gradient-to-r from-gray-50 to-white rounded-xl p-3 border border-gray-100 mb-2";
+      div.innerHTML = `
+        <div class="flex items-start justify-between mb-2">
+          <div class="flex-1">
+            <p class="text-sm font-bold text-gray-800">${item.brand_name}</p>
+            <p class="text-xs text-gray-400">
+              ৳${item.mrp_per_unit}/পিস &nbsp;|&nbsp;
+              Exp: ${item.expiry_date} &nbsp;|&nbsp;
+              স্টক: ${item.max_qty}
+            </p>
+          </div>
+          <button class="remove-btn text-red-400 hover:text-red-600 ml-2 text-lg leading-none">✕</button>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
+            <button class="qty-dec px-3 py-1.5 bg-gray-100 hover:bg-gray-200 font-bold text-gray-700">−</button>
+            <input type="number" value="${item.qty}" min="1" max="${item.max_qty}"
+              class="qty-input w-12 text-center text-sm font-bold border-0 py-1.5 focus:outline-none" />
+            <button class="qty-inc px-3 py-1.5 bg-gray-100 hover:bg-gray-200 font-bold text-gray-700">+</button>
+          </div>
+          <div class="flex items-center gap-1">
+            <span class="text-xs text-gray-500">Disc%</span>
+            <input type="number" value="${item.discount_percent}" min="0" max="100"
+              class="disc-input w-14 border-2 border-gray-200 rounded-lg px-2 py-1 text-xs
+                text-center focus:outline-none focus:border-blue-400" />
+          </div>
+          <p class="line-total font-bold text-blue-600 text-sm ml-auto">৳${lineTotal.toFixed(2)}</p>
+        </div>`;
+
+      // Event listeners — DOM-এ সরাসরি, কোনো inline onclick নেই
+      const bid = item.batch_id;
+
+      div.querySelector(".remove-btn").addEventListener("click", () => removeFromCart(bid));
+
+      div.querySelector(".qty-dec").addEventListener("click", () => updateCartQty(bid, -1));
+
+      div.querySelector(".qty-inc").addEventListener("click", () => updateCartQty(bid, +1));
+
+      div.querySelector(".qty-input").addEventListener("change", e => setCartQty(bid, e.target.value));
+
+      div.querySelector(".disc-input").addEventListener("change", e => setCartDisc(bid, e.target.value));
+
+      fragment.appendChild(div);
+    });
+
+    container.innerHTML = "";
+    container.appendChild(fragment);
+
+    // Totals
     const total = subtotal - totalDiscount;
     document.getElementById("cart-subtotal").textContent = `৳${subtotal.toFixed(2)}`;
     document.getElementById("cart-discount").textContent = `-৳${totalDiscount.toFixed(2)}`;
     document.getElementById("cart-total").textContent    = `৳${total.toFixed(2)}`;
+
     calcChange();
     calcCreditDue();
   }
-
-  // ════════════════════════════════
-  // PAYMENT METHOD
-  // ════════════════════════════════
-  window.selectPayment = (method) => {
-    PAYMENT_METHOD = method;
-    ["CASH","BKASH","NAGAD","CREDIT"].forEach(m => {
-      const btn = document.getElementById("pay-"+m);
-      if (!btn) return;
-      const isActive = m === method;
-      btn.className  = isActive
-        ? "bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all"
-        : "bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all";
-    });
-
-    const creditSection        = document.getElementById("credit-section");
-    const normalPaymentSection = document.getElementById("normal-payment-section");
-    const reqBadge             = document.getElementById("customer-required-badge");
-    const optBadge             = document.getElementById("customer-optional-badge");
-
-    if (method === "CREDIT") {
-      creditSection.classList.remove("hidden");
-      normalPaymentSection.classList.add("hidden");
-      reqBadge?.classList.remove("hidden");
-      optBadge?.classList.add("hidden");
-    } else {
-      creditSection.classList.add("hidden");
-      normalPaymentSection.classList.remove("hidden");
-      reqBadge?.classList.add("hidden");
-      optBadge?.classList.remove("hidden");
-    }
-    calcChange();
-    calcCreditDue();
-  };
-
-  window.calcChange = () => {
-    const paid   = parseFloat(document.getElementById("amount-paid").value) || 0;
-    const total  = getCartTotal();
-    const change = paid - total;
-    const el     = document.getElementById("change-display");
-    if (el) {
-      el.textContent = `৳${Math.max(0, change).toFixed(2)}`;
-      el.className   = change >= 0
-        ? "font-bold text-green-600"
-        : "font-bold text-red-500";
-    }
-  };
-
-  window.calcCreditDue = () => {
-    const advance = parseFloat(document.getElementById("credit-advance")?.value) || 0;
-    const total   = getCartTotal();
-    const due     = total - advance;
-    const el      = document.getElementById("credit-due-display");
-    if (el) {
-      el.textContent = `৳${Math.max(0, due).toFixed(2)}`;
-      el.className   = due > 0
-        ? "font-bold text-orange-600 text-sm"
-        : "font-bold text-green-600 text-sm";
-    }
-  };
-
-  // ════════════════════════════════
-  // CHECKOUT
-  // ════════════════════════════════
-  window.checkout = async () => {
-    if (CART.length === 0) { showToast("Cart খালি!", "warning"); return; }
-    if (IS_SUBMITTING) return; // Double-submit guard
-
-    const total         = getCartTotal();
-    const amountPaid    = parseFloat(document.getElementById("amount-paid").value) || 0;
-    const creditAdvance = parseFloat(document.getElementById("credit-advance")?.value) || 0;
-    const customerName  = document.getElementById("customer-name").value.trim();
-    const customerPhone = document.getElementById("customer-phone").value.trim();
-
-    // Validation
-    if (PAYMENT_METHOD !== "CREDIT" && amountPaid < total) {
-      showToast("প্রদত্ত টাকা মোট বিলের চেয়ে কম!", "warning"); return;
-    }
-    if (PAYMENT_METHOD === "CREDIT" && (!customerName || !customerPhone)) {
-      showToast("বাকি বিক্রিতে ক্রেতার নাম ও ফোন আবশ্যক!", "error"); return;
-    }
-
-    IS_SUBMITTING = true;
-    const btn     = document.getElementById("checkout-btn");
-    btn.textContent = "⟳ সংরক্ষণ হচ্ছে...";
-    btn.disabled    = true;
-
-    const requestId = "REQ-" + Date.now();
-    const saleData  = {
-      items             : CART,
-      customer_name     : customerName,
-      customer_phone    : customerPhone,
-      payment_method    : PAYMENT_METHOD,
-      amount_paid       : PAYMENT_METHOD === "CREDIT" ? creditAdvance : amountPaid,
-      sold_by           : window.APP.user?.email || "",
-      client_request_id : requestId
-    };
-
-    // Deduct from local cache immediately (offline-safe)
-    CART.forEach(item => deductFromCache(item.batch_id, item.qty));
-
-    if (!navigator.onLine) {
-      saveOfflineSale(saleData);
-      showOfflineInvoice(saleData, total, creditAdvance);
-      showToast("✅ Offline invoice তৈরি — পরে sync হবে", "warning");
-      return;
-    }
-
-    try {
-      const result = await gasGet("saveSale", {
-        ...saleData,
-        items: JSON.stringify(saleData.items)
-      });
-
-      if (result.status === "OK") {
-        // Credit হলে Credit_Ledger-এ save
-        if (PAYMENT_METHOD === "CREDIT") {
-          await gasGet("saveCreditSale", {
-            invoice_number : result.data.invoice_number,
-            customer_name  : customerName,
-            customer_phone : customerPhone,
-            total_amount   : result.data.subtotal,
-            paid_amount    : creditAdvance
-          });
-        }
-        showInvoice(result.data, saleData);
-        showToast("✅ Invoice সংরক্ষিত!", "success");
-      } else {
-        showToast(result.message || "সমস্যা হয়েছে", "error");
-        IS_SUBMITTING = false;
-        btn.textContent = "🧾 Invoice তৈরি করুন";
-        btn.disabled    = false;
-      }
-    } catch(err) {
-      saveOfflineSale(saleData);
-      showOfflineInvoice(saleData, total, creditAdvance);
-      showToast("Offline — পরে sync হবে", "warning");
-    }
-  };
-
   // ════════════════════════════════
   // INVOICE DISPLAY
   // ════════════════════════════════
