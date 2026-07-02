@@ -1459,27 +1459,9 @@
   window.newSale      = () => { clearPOS(); showScreen("screen-pos"); };
 
   // ── Offline helpers ──
-  const CACHE_KEY    = "pharmaos_stock_cache";
-  const CACHE_TS_KEY = "pharmaos_stock_cache_ts";
+  
   let STOCK_CACHE    = [];
 
-  function saveStockCache(data) {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); localStorage.setItem(CACHE_TS_KEY, Date.now()); } catch(e) {}
-  }
-  function loadStockCache() {
-    try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; }
-  }
-  function getCacheTimestamp() {
-    const ts = localStorage.getItem(CACHE_TS_KEY);
-    return ts ? new Date(parseInt(ts)).toLocaleTimeString("bn-BD") : null;
-  }
-  function deductFromCache(batchId, qty) {
-    try {
-      const cache = loadStockCache(); if (!cache) return;
-      const item  = cache.find(s => s.batch_id === batchId);
-      if (item) { item.qty_in_stock_units = Math.max(0, parseInt(item.qty_in_stock_units) - qty); saveStockCache(cache); }
-    } catch(e) {}
-  }
   function saveOfflineSale(saleData) {
     const queue = JSON.parse(localStorage.getItem("pharmaos_offline_queue") || "[]");
     queue.push({ ...saleData, offline_id: "OFF-" + Date.now(), offline_created_at: new Date().toISOString() });
@@ -1626,8 +1608,6 @@
     } catch(e) {}
   }
 
-  window.printInvoice = () => window.print();
-  window.newSale      = () => { clearCart(); showScreen("screen-pos"); };
 
   // ════════════════════════════════
   // OFFLINE QUEUE
@@ -1924,7 +1904,11 @@
   // INIT
   // ════════════════════════════════
   registerSW();
-
+window.addEventListener("error", (e) => {
+  console.error("Fatal JS error:", e.message);
+  document.querySelectorAll(".screen").forEach(s => s.classList.add("hidden"));
+  document.getElementById("screen-welcome")?.classList.remove("hidden");
+});
   </script>
 </body>
 </html>
