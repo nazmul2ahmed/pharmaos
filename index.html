@@ -398,75 +398,65 @@
       </div>
     </div>
   </div>
-  <!-- ════════════════ SCREEN: POS ════════════════ -->
+ <!-- ════════════════ SCREEN: POS ════════════════ -->
   <div id="screen-pos" class="screen hidden">
     <div class="bg-white bg-opacity-10 px-4 py-3 flex items-center justify-between">
-      <button onclick="confirmLeavePOS()" class="text-white text-sm">← ফিরে যান</button>
+      <button onclick="showScreen('screen-dashboard')" class="text-white text-sm">← ফিরে যান</button>
       <span class="text-white font-bold text-sm">🧾 POS বিলিং</span>
-      <button onclick="clearCart()" class="bg-red-500 bg-opacity-80 text-white text-xs px-3 py-1.5 rounded-lg">
+      <button onclick="clearPOS()" class="bg-red-500 bg-opacity-80 text-white text-xs px-3 py-1.5 rounded-lg">
         🗑️ Clear
       </button>
     </div>
 
-    <div class="px-4 pt-3 pb-3">
-      <div id="pos-offline-banner" class="hidden bg-yellow-100 border border-yellow-300 rounded-xl px-3 py-2 mb-3 text-xs text-yellow-800 text-center">
-        📡 Offline mode — cached stock data ব্যবহার হচ্ছে
-      </div>
-    </div>
+    <div class="px-4 pt-3 pb-28 space-y-3">
 
-    <div class="px-4 pb-28 space-y-3">
-
-      <!-- Search -->
-      <div class="glass-card rounded-2xl p-3 shadow-lg sticky top-0 z-20">
-        <div class="relative">
-          <input id="drug-search" type="text" placeholder="ওষুধের নাম লিখুন... (যেমনঃ Napa)"
-            oninput="searchDrugs(this.value)"
-            autocomplete="off"
-            class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl px-4 py-3 pr-10 text-sm transition-all" />
-          <span class="absolute right-3 top-3 text-gray-400 text-lg">🔍</span>
-        </div>
-        <div id="search-results" class="hidden mt-2 space-y-1 max-h-72 overflow-y-auto"></div>
+      <!-- Offline Banner -->
+      <div id="pos-offline-banner" class="hidden bg-yellow-100 border border-yellow-300
+        rounded-xl px-3 py-2 text-xs text-yellow-800 text-center">
+        📡 Offline mode — cached stock ব্যবহার হচ্ছে
       </div>
 
-      <!-- Cart -->
+      <!-- ওষুধ লিস্ট -->
       <div class="glass-card rounded-2xl p-4 shadow-lg">
         <div class="flex items-center justify-between mb-3">
-          <p class="font-bold text-gray-800 text-sm">🛒 Cart</p>
-          <span id="cart-count" class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">
-            0 items
-          </span>
+          <p class="font-bold text-gray-800 text-sm">💊 ওষুধ সমূহ</p>
+          <span class="text-xs text-gray-400">FEFO অনুযায়ী স্বয়ংক্রিয়</span>
         </div>
-        <div id="cart-items" class="space-y-2 min-h-12">
-          <p id="cart-empty-msg" class="text-xs text-gray-400 text-center py-3">
-            Cart খালি — উপরে ওষুধ search করুন
-          </p>
+        <div id="pos-items"></div>
+        <button onclick="addPOSItem()"
+          class="w-full mt-2 bg-blue-50 border-2 border-dashed border-blue-300
+            text-blue-600 font-semibold py-2 rounded-xl text-sm hover:bg-blue-100 transition-all">
+          + আরো ওষুধ যোগ করুন
+        </button>
+      </div>
+
+      <!-- Bill Summary -->
+      <div class="glass-card rounded-2xl p-4 shadow-lg" id="pos-bill-box" style="display:none">
+        <div class="flex justify-between mb-1">
+          <span class="text-sm text-gray-600">ওষুধ মোট:</span>
+          <span class="font-bold" id="pos-subtotal">৳0</span>
         </div>
-        <div id="cart-total-section" class="hidden border-t border-gray-100 mt-3 pt-3">
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-sm text-gray-600">Subtotal:</span>
-            <span id="cart-subtotal" class="font-bold text-gray-800">৳0</span>
-          </div>
-          <div class="flex justify-between items-center mb-1">
-            <span class="text-sm text-gray-600">Discount:</span>
-            <span id="cart-discount" class="font-medium text-red-500">-৳0</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-sm font-bold text-gray-800">Total:</span>
-            <span id="cart-total" class="text-lg font-bold text-blue-600">৳0</span>
-          </div>
+        <div class="flex justify-between mb-1">
+          <span class="text-sm text-gray-600">Discount:</span>
+          <span class="font-medium text-red-500" id="pos-discount">-৳0</span>
+        </div>
+        <div class="flex justify-between border-t pt-2 mt-1">
+          <span class="text-sm font-bold">মোট:</span>
+          <span class="text-lg font-bold text-blue-600" id="pos-total">৳0</span>
         </div>
       </div>
 
-      <!-- Customer -->
+      <!-- Customer (Optional) -->
       <div class="glass-card rounded-2xl p-4 shadow-lg">
-        <p class="font-bold text-gray-800 text-sm mb-3">
-          👤 ক্রেতার তথ্য <span id="customer-required-badge" class="hidden text-red-500 text-xs">(আবশ্যক — বাকি বিক্রি)</span>
-          <span id="customer-optional-badge" class="text-gray-400 text-xs">(ঐচ্ছিক)</span>
+        <p class="font-bold text-gray-800 text-sm mb-2">
+          👤 ক্রেতার তথ্য
+          <span id="pos-cust-badge" class="text-red-500 text-xs hidden"> (বাকি বিক্রিতে আবশ্যক)</span>
+          <span class="text-gray-400 text-xs"> (ঐচ্ছিক)</span>
         </p>
         <div class="grid grid-cols-2 gap-2">
-          <input id="customer-name" type="text" placeholder="নাম"
+          <input id="pos-cust-name" type="text" placeholder="নাম"
             class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3 py-2 text-sm" />
-          <input id="customer-phone" type="tel" placeholder="ফোন"
+          <input id="pos-cust-phone" type="tel" placeholder="ফোন"
             class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3 py-2 text-sm" />
         </div>
       </div>
@@ -475,61 +465,63 @@
       <div class="glass-card rounded-2xl p-4 shadow-lg">
         <p class="font-bold text-gray-800 text-sm mb-3">💳 পেমেন্ট</p>
         <div class="grid grid-cols-4 gap-2 mb-3">
-          <button onclick="selectPayment('CASH')" id="pay-CASH"
-            class="bg-green-500 text-white text-xs font-semibold py-2 rounded-xl transition-all">
+          <button onclick="setPOSPayment('CASH')" id="pos-pay-CASH"
+            class="pos-pay-btn bg-green-500 text-white text-xs font-semibold py-2 rounded-xl">
             💵 Cash
           </button>
-          <button onclick="selectPayment('BKASH')" id="pay-BKASH"
-            class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
+          <button onclick="setPOSPayment('BKASH')" id="pos-pay-BKASH"
+            class="pos-pay-btn bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl">
             📱 bKash
           </button>
-          <button onclick="selectPayment('NAGAD')" id="pay-NAGAD"
-            class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
+          <button onclick="setPOSPayment('NAGAD')" id="pos-pay-NAGAD"
+            class="pos-pay-btn bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl">
             📱 Nagad
           </button>
-          <button onclick="selectPayment('CREDIT')" id="pay-CREDIT"
-            class="bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl transition-all">
+          <button onclick="setPOSPayment('CREDIT')" id="pos-pay-CREDIT"
+            class="pos-pay-btn bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl">
             📒 বাকি
           </button>
         </div>
 
-        <!-- Credit advance section -->
-        <div id="credit-section" class="hidden bg-orange-50 border border-orange-200 rounded-xl p-3 mb-3">
-          <p class="text-xs font-semibold text-orange-700 mb-2">💰 আংশিক payment (ঐচ্ছিক)</p>
+        <!-- Credit advance -->
+        <div id="pos-credit-box" class="hidden bg-orange-50 border border-orange-200
+          rounded-xl p-3 mb-3">
+          <p class="text-xs font-semibold text-orange-700 mb-2">💰 আংশিক advance (ঐচ্ছিক)</p>
           <div class="relative">
             <span class="absolute left-3 top-2.5 text-gray-500 font-bold text-sm">৳</span>
-            <input id="credit-advance" type="number" placeholder="এখন কত দিচ্ছে?"
-              oninput="calcCreditDue()"
-              class="w-full border-2 border-orange-200 focus:border-orange-400 rounded-xl
-                pl-7 pr-4 py-2.5 text-sm transition-all" />
+            <input id="pos-advance" type="number" placeholder="এখন কত দিচ্ছে?"
+              oninput="calcPOSBill()"
+              class="w-full border-2 border-orange-200 focus:border-orange-400
+                rounded-xl pl-7 pr-4 py-2.5 text-sm" />
           </div>
-          <div class="flex justify-between items-center mt-2 bg-white rounded-lg px-3 py-1.5">
+          <div class="flex justify-between mt-2 bg-white rounded-lg px-3 py-1.5">
             <span class="text-xs text-gray-600">বাকি থাকবে:</span>
-            <span id="credit-due-display" class="font-bold text-orange-600 text-sm">৳0</span>
+            <span id="pos-due-show" class="font-bold text-orange-600 text-sm">৳0</span>
           </div>
         </div>
 
-        <!-- Cash/bKash/Nagad amount paid section -->
-        <div id="normal-payment-section" class="space-y-2">
+        <!-- Cash paid -->
+        <div id="pos-cash-box" class="space-y-2">
           <div class="relative">
             <span class="absolute left-3 top-3 text-gray-500 font-bold">৳</span>
-            <input id="amount-paid" type="number" placeholder="প্রদত্ত টাকা"
-              oninput="calcChange()"
-              class="w-full border-2 border-gray-200 focus:border-blue-400 rounded-xl pl-7 pr-4 py-3 text-sm" />
+            <input id="pos-paid" type="number" placeholder="প্রদত্ত টাকা"
+              oninput="calcPOSChange()"
+              class="w-full border-2 border-gray-200 focus:border-blue-400
+                rounded-xl pl-7 pr-4 py-3 text-sm" />
           </div>
-          <div class="flex justify-between items-center bg-blue-50 rounded-xl px-4 py-2">
+          <div class="flex justify-between bg-blue-50 rounded-xl px-4 py-2">
             <span class="text-sm text-gray-600">ফেরত:</span>
-            <span id="change-display" class="font-bold text-blue-600">৳0</span>
+            <span id="pos-change" class="font-bold text-blue-600">৳0</span>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- Checkout Button -->
+    <!-- Checkout -->
     <div class="fixed bottom-0 left-0 right-0 px-4 py-3 bg-white border-t border-gray-200 shadow-lg">
-      <button id="checkout-btn" onclick="checkout()"
-        class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-md text-base disabled:opacity-50">
+      <button id="pos-checkout-btn" onclick="posCheckout()"
+        class="w-full btn-primary text-white font-bold py-4 rounded-xl shadow-md text-base">
         🧾 Invoice তৈরি করুন
       </button>
     </div>
@@ -1005,370 +997,382 @@
   };
 
   // ════════════════════════════════
-  // POS STATE
+  // POS — Reference pattern (DOM-based, like sales form)
   // ════════════════════════════════
-  let CART           = [];
-  let PAYMENT_METHOD = "CASH";
-  let SEARCH_TIMEOUT = null;
-  let STOCK_CACHE    = [];
-  let IS_SUBMITTING  = false;
+  let POS_PAYMENT = "CASH";
+  let POS_COUNT   = 0;
+  let IS_SUBMITTING = false;
 
-  function fixStock(s) {
-    const exp = s.expiry_date || s.expiry_date_iso || "";
-    const expStr = exp instanceof Date
-      ? `${String(exp.getMonth()+1).padStart(2,"0")}/${exp.getFullYear()}`
-      : String(exp).substring(0,7);
+  function fixStockExp(s) {
+    let exp = s.expiry_date || "";
+    if (exp instanceof Date) {
+      const m = String(exp.getMonth()+1).padStart(2,"0");
+      exp = m + "/" + exp.getFullYear();
+    } else if (String(exp).length > 7) {
+      // ISO string — take YYYY-MM → convert to MM/YYYY
+      const parts = String(exp).substring(0,7).split("-");
+      if (parts.length === 2) exp = parts[1] + "/" + parts[0];
+    }
     return {
-      batch_id           : String(s.batch_id || ""),
-      drug_id            : String(s.drug_id  || ""),
-      brand_name         : String(s.brand_name || ""),
-      batch_number       : String(s.batch_number || ""),
-      expiry_date        : expStr,
+      ...s,
+      expiry_date        : exp,
       mrp_per_unit       : parseFloat(s.mrp_per_unit)        || 0,
       tp_per_unit        : parseFloat(s.tp_per_unit)         || 0,
-      qty_in_stock_units : parseInt(s.qty_in_stock_units)    || 0,
-      unit_type          : String(s.unit_type || "পিস"),
-      rack_location      : String(s.rack_location || "")
+      qty_in_stock_units : parseInt(s.qty_in_stock_units)    || 0
     };
   }
 
-  // ════════════════════════════════
-  // OPEN POS
-  // ════════════════════════════════
+  // ── POS খোলা ──
   window.openPOS = async () => {
     showScreen("screen-pos");
-    clearCart();
+    clearPOS();
 
-    // ১. Cache থেকে instant load
+    // Cache থেকে instant load
     const cached = loadStockCache();
     if (cached && cached.length > 0) {
-      STOCK_CACHE = cached.map(fixStock);
+      STOCK_CACHE = cached.map(fixStockExp);
       document.getElementById("pos-offline-banner")
         .classList.toggle("hidden", navigator.onLine);
     }
 
-    // ২. Background refresh
+    // Online হলে fresh data নিন
     if (navigator.onLine) {
       try {
         const res = await gasGet("getStock", {});
         if (res.data && res.data.length > 0) {
-          STOCK_CACHE = res.data.map(fixStock);
+          STOCK_CACHE = res.data.map(fixStockExp);
           saveStockCache(res.data);
           document.getElementById("pos-offline-banner").classList.add("hidden");
-          showToast(`${STOCK_CACHE.length} টি stock loaded ✅`, "success");
+          showToast(`${STOCK_CACHE.length} টি stock ready`, "success");
         }
       } catch(e) {
-        showToast("Offline mode — cache থেকে চলছে", "warning");
+        if (!STOCK_CACHE.length)
+          showToast("Stock cache নেই — একবার online-এ খুলুন", "warning");
       }
     }
   };
 
-  window.confirmLeavePOS = () => {
-    if (CART.length > 0 && !confirm("Cart-এ items আছে। ফিরে যাবেন?")) return;
-    showScreen("screen-dashboard");
+  // ── Item যোগ করা (Sales form-এর মতো) ──
+  window.addPOSItem = () => {
+    POS_COUNT++;
+    const n   = POS_COUNT;
+    const div = document.createElement("div");
+    div.id        = "pos-row-" + n;
+    div.className = "mrow mb-2";
+    div.innerHTML = `
+      <div class="mhdr">
+        <span class="mtitle">ওষুধ ${n}</span>
+        <span class="mstock-info" id="pos-stock-${n}"></span>
+        ${n > 1 ? `<button class="btn bdanger" onclick="removePOSItem(${n})">✕</button>` : ""}
+      </div>
+      <div class="g1">
+        <label>ওষুধ খুঁজুন</label>
+        <div class="sw">
+          <input type="text" id="pos-search-${n}" placeholder="নাম লিখুন..."
+            autocomplete="off"
+            oninput="posMedSearch(this, ${n})"
+            onfocus="posMedSearch(this, ${n})"
+            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-3 py-2 text-sm w-full" />
+          <div id="pos-drop-${n}" class="sdrop"></div>
+        </div>
+      </div>
+      <input type="hidden" id="pos-bid-${n}" />
+      <input type="hidden" id="pos-did-${n}" />
+      <input type="hidden" id="pos-brand-${n}" />
+      <input type="hidden" id="pos-exp-${n}" />
+      <input type="hidden" id="pos-tp-${n}" />
+      <div class="g4 mt-2">
+        <div>
+          <label>পরিমাণ</label>
+          <input type="number" id="pos-qty-${n}" value="1" min="1"
+            oninput="calcPOSBill()"
+            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-2 py-2 text-sm w-full" />
+        </div>
+        <div>
+          <label>MRP/পিস</label>
+          <input type="number" id="pos-mrp-${n}" placeholder="0"
+            oninput="calcPOSBill()"
+            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-2 py-2 text-sm w-full" />
+        </div>
+        <div>
+          <label>Disc%</label>
+          <input type="number" id="pos-disc-${n}" value="0" min="0" max="100"
+            oninput="calcPOSBill()"
+            class="border-2 border-gray-200 focus:border-blue-400 rounded-xl px-2 py-2 text-sm w-full" />
+        </div>
+        <div>
+          <label>মোট</label>
+          <input type="number" id="pos-line-${n}" readonly
+            class="border-2 border-gray-100 bg-gray-50 rounded-xl px-2 py-2 text-sm w-full" />
+        </div>
+      </div>`;
+    document.getElementById("pos-items").appendChild(div);
   };
 
-  // ════════════════════════════════
-  // SEARCH
-  // ════════════════════════════════
-  window.searchDrugs = (query) => {
-    clearTimeout(SEARCH_TIMEOUT);
-    const resultsEl = document.getElementById("search-results");
-    if (!query || query.length < 2) {
-      resultsEl.classList.add("hidden"); return;
-    }
-    SEARCH_TIMEOUT = setTimeout(() => {
-      const q       = query.toLowerCase();
-      const matches = STOCK_CACHE.filter(s =>
-        s.brand_name.toLowerCase().includes(q) && s.qty_in_stock_units > 0
-      ).slice(0, 8);
-
-      if (!matches.length) {
-        resultsEl.innerHTML = `
-          <div class="text-center py-3 text-xs text-gray-400">
-            "${query}" — stock-এ নেই বা বিক্রি শেষ
-          </div>`;
-        resultsEl.classList.remove("hidden");
-        return;
-      }
-
-      resultsEl.innerHTML = matches.map((s, i) => `
-        <div data-idx="${i}" data-bid="${s.batch_id}"
-          class="search-result-item flex items-center justify-between
-            bg-gradient-to-r from-blue-50 to-white hover:from-blue-100
-            rounded-xl px-3 py-2.5 cursor-pointer transition-all
-            border border-blue-100 hover:border-blue-300">
-          <div class="flex-1">
-            <p class="text-sm font-bold text-gray-800">${s.brand_name}</p>
-            <p class="text-xs text-gray-500">
-              📦 ${s.qty_in_stock_units} পিস বাকি &nbsp;|&nbsp;
-              ⏰ ${s.expiry_date}
-            </p>
-          </div>
-          <div class="text-right ml-3">
-            <p class="text-base font-bold text-blue-600">৳${s.mrp_per_unit}</p>
-            <p class="text-xs text-gray-400">প্রতি পিস</p>
-          </div>
-        </div>`).join("");
-
-      // event delegation — onclick attribute avoid করছি
-      resultsEl.querySelectorAll(".search-result-item").forEach(el => {
-        el.addEventListener("click", () => {
-          const bid   = el.dataset.bid;
-          const stock = STOCK_CACHE.find(s => s.batch_id === bid);
-          if (stock) addToCart(stock);
-        });
-      });
-
-      resultsEl.classList.remove("hidden");
-    }, 250);
+  window.removePOSItem = (n) => {
+    document.getElementById("pos-row-" + n)?.remove();
+    calcPOSBill();
   };
 
-  // ════════════════════════════════
-  // CART
-  // ════════════════════════════════
-  window.addToCart = (stock) => {
-    const existing = CART.find(i => i.batch_id === stock.batch_id);
-    if (existing) {
-      if (existing.qty >= stock.qty_in_stock_units) {
-        showToast("স্টক সীমা পৌঁছে গেছে!", "warning"); return;
-      }
-      existing.qty++;
-    } else {
-      CART.push({
-        batch_id        : stock.batch_id,
-        drug_id         : stock.drug_id,
-        brand_name      : stock.brand_name,
-        unit_type       : stock.unit_type,
-        qty             : 1,
-        mrp_per_unit    : stock.mrp_per_unit,
-        tp_per_unit     : stock.tp_per_unit,
-        discount_percent: 0,
-        max_qty         : stock.qty_in_stock_units,
-        expiry_date     : stock.expiry_date,
-        batch_number    : stock.batch_number
-      });
-    }
-    document.getElementById("search-results").classList.add("hidden");
-    document.getElementById("drug-search").value = "";
-    renderCart();
-    showToast(`✅ ${stock.brand_name} যোগ হয়েছে`, "success");
-  };
+  // ── Stock search (Sales form pattern) ──
+  window.posMedSearch = (input, n) => {
+    const q      = input.value.trim().toLowerCase();
+    const dropId = "pos-drop-" + n;
+    if (q.length < 1) { showDrop(dropId, ""); return; }
 
-  window.removeFromCart = (batchId) => {
-    CART = CART.filter(i => i.batch_id !== batchId);
-    renderCart();
-  };
+    const matches = STOCK_CACHE.filter(s =>
+      s.brand_name?.toLowerCase().includes(q) && s.qty_in_stock_units > 0
+    ).slice(0, 12);
 
-  window.updateCartQty = (batchId, delta) => {
-    const item = CART.find(i => i.batch_id === batchId);
-    if (!item) return;
-    const newQty = item.qty + delta;
-    if (newQty <= 0) { removeFromCart(batchId); return; }
-    if (newQty > item.max_qty) {
-      showToast(`সর্বোচ্চ ${item.max_qty} পিস available`, "warning"); return;
-    }
-    item.qty = newQty;
-    renderCart();
-  };
-
-  window.setCartQty = (batchId, val) => {
-    const item = CART.find(i => i.batch_id === batchId);
-    if (!item) return;
-    const newQty = parseInt(val) || 1;
-    if (newQty <= 0) { removeFromCart(batchId); return; }
-    item.qty = Math.min(newQty, item.max_qty);
-    renderCart();
-  };
-
-  window.setCartDisc = (batchId, val) => {
-    const item = CART.find(i => i.batch_id === batchId);
-    if (!item) return;
-    item.discount_percent = Math.min(parseFloat(val) || 0, 100);
-    renderCart();
-  };
-
-  window.clearCart = () => {
-    CART           = [];
-    PAYMENT_METHOD = "CASH";
-    IS_SUBMITTING  = false;
-    ["drug-search","amount-paid","customer-name",
-     "customer-phone","credit-advance"].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = "";
-    });
-    const cd = document.getElementById("change-display");
-    if (cd) cd.textContent = "৳0";
-    const cdd = document.getElementById("credit-due-display");
-    if (cdd) cdd.textContent = "৳0";
-    document.getElementById("search-results")?.classList.add("hidden");
-    selectPayment("CASH");
-    renderCart();
-  };
-
-  function getCartTotal() {
-    return CART.reduce((sum, item) => {
-      const gross = item.qty * item.mrp_per_unit;
-      return sum + gross - (gross * item.discount_percent / 100);
-    }, 0);
-  }
-
-  // ════════════════════════════════
-  // RENDER CART
-  // ════════════════════════════════
-  function renderCart() {
-    const container = document.getElementById("cart-items");
-    const emptyMsg  = document.getElementById("cart-empty-msg");
-    const countEl   = document.getElementById("cart-count");
-    const totalSec  = document.getElementById("cart-total-section");
-
-    countEl.textContent = `${CART.length} items`;
-
-    if (CART.length === 0) {
-      container.innerHTML = "";
-      container.appendChild(emptyMsg);
-      emptyMsg.classList.remove("hidden");
-      totalSec.classList.add("hidden");
+    if (!matches.length) {
+      showDrop(dropId, `<div class="si"><div class="sb" style="color:#E65100">
+        "${q}" পাওয়া যায়নি বা stock শেষ</div></div>`);
       return;
     }
 
-    emptyMsg.classList.add("hidden");
-    totalSec.classList.remove("hidden");
-
-    let subtotal = 0, totalDiscount = 0;
-
-    // DOM তৈরি করছি — string concatenation এ quote issue নেই
-    const fragment = document.createDocumentFragment();
-
-    CART.forEach(item => {
-      const gross     = item.qty * item.mrp_per_unit;
-      const disc      = gross * item.discount_percent / 100;
-      const lineTotal = gross - disc;
-      subtotal       += gross;
-      totalDiscount  += disc;
-
-      const div = document.createElement("div");
-      div.className = "bg-gradient-to-r from-gray-50 to-white rounded-xl p-3 border border-gray-100 mb-2";
-      div.innerHTML = `
-        <div class="flex items-start justify-between mb-2">
-          <div class="flex-1">
-            <p class="text-sm font-bold text-gray-800">${item.brand_name}</p>
-            <p class="text-xs text-gray-400">
-              ৳${item.mrp_per_unit}/পিস &nbsp;|&nbsp;
-              Exp: ${item.expiry_date} &nbsp;|&nbsp;
-              স্টক: ${item.max_qty}
-            </p>
-          </div>
-          <button class="remove-btn text-red-400 hover:text-red-600 ml-2 text-lg leading-none">✕</button>
+    const html = matches.map(s => {
+      const sc = s.qty_in_stock_units <= 5 ? "slow" : "sok";
+      return `<div class="si" onclick="selectPOSMed(${n},
+        '${s.batch_id}','${s.drug_id}',
+        '${s.brand_name.replace(/'/g,"\\'")}',
+        '${s.expiry_date}',
+        ${s.mrp_per_unit},${s.tp_per_unit},
+        ${s.qty_in_stock_units})">
+        <div>
+          <div class="mn">${s.brand_name}</div>
+          <div class="sb">Exp: ${s.expiry_date} | Stock: ${s.qty_in_stock_units}</div>
         </div>
-        <div class="flex items-center gap-2">
-          <div class="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
-            <button class="qty-dec px-3 py-1.5 bg-gray-100 hover:bg-gray-200 font-bold text-gray-700">−</button>
-            <input type="number" value="${item.qty}" min="1" max="${item.max_qty}"
-              class="qty-input w-12 text-center text-sm font-bold border-0 py-1.5 focus:outline-none" />
-            <button class="qty-inc px-3 py-1.5 bg-gray-100 hover:bg-gray-200 font-bold text-gray-700">+</button>
-          </div>
-          <div class="flex items-center gap-1">
-            <span class="text-xs text-gray-500">Disc%</span>
-            <input type="number" value="${item.discount_percent}" min="0" max="100"
-              class="disc-input w-14 border-2 border-gray-200 rounded-lg px-2 py-1 text-xs
-                text-center focus:outline-none focus:border-blue-400" />
-          </div>
-          <p class="line-total font-bold text-blue-600 text-sm ml-auto">৳${lineTotal.toFixed(2)}</p>
-        </div>`;
+        <div class="text-right">
+          <div class="font-bold text-blue-600 text-sm">৳${s.mrp_per_unit}</div>
+          <span class="sbadge ${sc}">${s.qty_in_stock_units} পিস</span>
+        </div>
+      </div>`;
+    }).join("");
 
-      // Event listeners — DOM-এ সরাসরি, কোনো inline onclick নেই
-      const bid = item.batch_id;
+    showDrop(dropId, html);
+  };
 
-      div.querySelector(".remove-btn").addEventListener("click", () => removeFromCart(bid));
+  window.selectPOSMed = (n, bid, did, brand, exp, mrp, tp, stock) => {
+    document.getElementById("pos-search-" + n).value = brand;
+    document.getElementById("pos-bid-"    + n).value = bid;
+    document.getElementById("pos-did-"    + n).value = did;
+    document.getElementById("pos-brand-"  + n).value = brand;
+    document.getElementById("pos-exp-"    + n).value = exp;
+    document.getElementById("pos-tp-"     + n).value = tp;
+    document.getElementById("pos-mrp-"    + n).value = mrp;
 
-      div.querySelector(".qty-dec").addEventListener("click", () => updateCartQty(bid, -1));
+    const si = document.getElementById("pos-stock-" + n);
+    if (si) si.textContent = stock <= 5 ? `🟡 ${stock} পিস` : `✅ ${stock} পিস`;
 
-      div.querySelector(".qty-inc").addEventListener("click", () => updateCartQty(bid, +1));
+    // max qty set
+    const qtyInput = document.getElementById("pos-qty-" + n);
+    if (qtyInput) qtyInput.max = stock;
 
-      div.querySelector(".qty-input").addEventListener("change", e => setCartQty(bid, e.target.value));
+    closeDrops();
+    calcPOSBill();
+    showToast(`${brand} select হয়েছে`, "success");
+  };
 
-      div.querySelector(".disc-input").addEventListener("change", e => setCartDisc(bid, e.target.value));
+  // ── Bill calculation ──
+  window.calcPOSBill = () => {
+    let subtotal = 0, discount = 0;
+    let hasItem  = false;
 
-      fragment.appendChild(div);
+    document.querySelectorAll("[id^='pos-row-']").forEach(row => {
+      const n    = row.id.replace("pos-row-", "");
+      const qty  = parseFloat(document.getElementById("pos-qty-"  + n)?.value) || 0;
+      const mrp  = parseFloat(document.getElementById("pos-mrp-"  + n)?.value) || 0;
+      const disc = parseFloat(document.getElementById("pos-disc-" + n)?.value) || 0;
+
+      if (qty > 0 && mrp > 0) hasItem = true;
+
+      const gross    = qty * mrp;
+      const discAmt  = gross * disc / 100;
+      const lineTotal = gross - discAmt;
+
+      subtotal += gross;
+      discount += discAmt;
+
+      const lineEl = document.getElementById("pos-line-" + n);
+      if (lineEl) lineEl.value = lineTotal.toFixed(2);
     });
 
-    container.innerHTML = "";
-    container.appendChild(fragment);
+    const total = subtotal - discount;
 
-    // Totals
-    const total = subtotal - totalDiscount;
-    document.getElementById("cart-subtotal").textContent = `৳${subtotal.toFixed(2)}`;
-    document.getElementById("cart-discount").textContent = `-৳${totalDiscount.toFixed(2)}`;
-    document.getElementById("cart-total").textContent    = `৳${total.toFixed(2)}`;
+    document.getElementById("pos-subtotal").textContent = `৳${subtotal.toFixed(2)}`;
+    document.getElementById("pos-discount").textContent = `-৳${discount.toFixed(2)}`;
+    document.getElementById("pos-total").textContent    = `৳${total.toFixed(2)}`;
+    document.getElementById("pos-bill-box").style.display = hasItem ? "block" : "none";
 
-    calcChange();
-    calcCreditDue();
+    // Credit due
+    if (POS_PAYMENT === "CREDIT") {
+      const advance = parseFloat(document.getElementById("pos-advance")?.value) || 0;
+      const due     = Math.max(0, total - advance);
+      const el      = document.getElementById("pos-due-show");
+      if (el) el.textContent = `৳${due.toFixed(2)}`;
+    }
+
+    calcPOSChange();
+  };
+
+  window.calcPOSChange = () => {
+    if (POS_PAYMENT === "CREDIT") return;
+    const paid   = parseFloat(document.getElementById("pos-paid")?.value) || 0;
+    const total  = getPOSTotal();
+    const change = paid - total;
+    const el     = document.getElementById("pos-change");
+    if (el) {
+      el.textContent = `৳${Math.max(0, change).toFixed(2)}`;
+      el.className   = change >= 0
+        ? "font-bold text-green-600"
+        : "font-bold text-red-500";
+    }
+  };
+
+  function getPOSTotal() {
+    let subtotal = 0, discount = 0;
+    document.querySelectorAll("[id^='pos-row-']").forEach(row => {
+      const n    = row.id.replace("pos-row-", "");
+      const qty  = parseFloat(document.getElementById("pos-qty-"  + n)?.value) || 0;
+      const mrp  = parseFloat(document.getElementById("pos-mrp-"  + n)?.value) || 0;
+      const disc = parseFloat(document.getElementById("pos-disc-" + n)?.value) || 0;
+      const gross = qty * mrp;
+      subtotal   += gross;
+      discount   += gross * disc / 100;
+    });
+    return subtotal - discount;
   }
-      // ════════════════════════════════
-  // CHECKOUT
-  // ════════════════════════════════
-  window.checkout = async () => {
-    if (CART.length === 0) { showToast("Cart খালি!", "warning"); return; }
-    if (IS_SUBMITTING) return; // Double-submit guard
 
-    const total         = getCartTotal();
-    const amountPaid    = parseFloat(document.getElementById("amount-paid").value) || 0;
-    const creditAdvance = parseFloat(document.getElementById("credit-advance")?.value) || 0;
-    const customerName  = document.getElementById("customer-name").value.trim();
-    const customerPhone = document.getElementById("customer-phone").value.trim();
+  // ── Payment method ──
+  window.setPOSPayment = (method) => {
+    POS_PAYMENT = method;
+    ["CASH","BKASH","NAGAD","CREDIT"].forEach(m => {
+      const btn = document.getElementById("pos-pay-" + m);
+      if (!btn) return;
+      btn.className = m === method
+        ? "pos-pay-btn bg-green-500 text-white text-xs font-semibold py-2 rounded-xl"
+        : "pos-pay-btn bg-gray-100 text-gray-600 text-xs font-semibold py-2 rounded-xl";
+    });
+
+    const creditBox = document.getElementById("pos-credit-box");
+    const cashBox   = document.getElementById("pos-cash-box");
+    const custBadge = document.getElementById("pos-cust-badge");
+
+    if (method === "CREDIT") {
+      creditBox?.classList.remove("hidden");
+      cashBox?.classList.add("hidden");
+      custBadge?.classList.remove("hidden");
+    } else {
+      creditBox?.classList.add("hidden");
+      cashBox?.classList.remove("hidden");
+      custBadge?.classList.add("hidden");
+    }
+    calcPOSBill();
+  };
+
+  // ── Clear ──
+  window.clearPOS = () => {
+    POS_COUNT     = 0;
+    IS_SUBMITTING = false;
+    document.getElementById("pos-items").innerHTML      = "";
+    document.getElementById("pos-cust-name").value      = "";
+    document.getElementById("pos-cust-phone").value     = "";
+    document.getElementById("pos-paid")?.value !== undefined &&
+      (document.getElementById("pos-paid").value = "");
+    document.getElementById("pos-advance") &&
+      (document.getElementById("pos-advance").value = "");
+    document.getElementById("pos-change").textContent   = "৳0";
+    document.getElementById("pos-due-show").textContent = "৳0";
+    document.getElementById("pos-bill-box").style.display = "none";
+    setPOSPayment("CASH");
+    addPOSItem(); // প্রথম row
+  };
+
+  // ── Checkout ──
+  window.posCheckout = async () => {
+    if (IS_SUBMITTING) return;
+
+    const total        = getPOSTotal();
+    const custName     = document.getElementById("pos-cust-name").value.trim();
+    const custPhone    = document.getElementById("pos-cust-phone").value.trim();
+    const amountPaid   = parseFloat(document.getElementById("pos-paid")?.value)    || 0;
+    const creditAdv    = parseFloat(document.getElementById("pos-advance")?.value) || 0;
+
+    // Items collect
+    const items = [];
+    document.querySelectorAll("[id^='pos-row-']").forEach(row => {
+      const n     = row.id.replace("pos-row-", "");
+      const bid   = document.getElementById("pos-bid-"   + n)?.value;
+      const did   = document.getElementById("pos-did-"   + n)?.value;
+      const brand = document.getElementById("pos-brand-" + n)?.value;
+      const exp   = document.getElementById("pos-exp-"   + n)?.value;
+      const tp    = parseFloat(document.getElementById("pos-tp-"  + n)?.value) || 0;
+      const qty   = parseFloat(document.getElementById("pos-qty-" + n)?.value) || 0;
+      const mrp   = parseFloat(document.getElementById("pos-mrp-" + n)?.value) || 0;
+      const disc  = parseFloat(document.getElementById("pos-disc-"+ n)?.value) || 0;
+      if (!bid || qty <= 0 || mrp <= 0) return;
+      items.push({ batch_id: bid, drug_id: did, brand_name: brand,
+        expiry_date: exp, unit_type: "পিস",
+        qty, mrp_per_unit: mrp, tp_per_unit: tp, discount_percent: disc });
+    });
 
     // Validation
-    if (PAYMENT_METHOD !== "CREDIT" && amountPaid < total) {
-      showToast("প্রদত্ত টাকা মোট বিলের চেয়ে কম!", "warning"); return;
+    if (items.length === 0) {
+      showToast("কমপক্ষে একটি ওষুধ যোগ করুন!", "warning"); return;
     }
-    if (PAYMENT_METHOD === "CREDIT" && (!customerName || !customerPhone)) {
+    if (total <= 0) {
+      showToast("মোট টাকা ০ — MRP দিন!", "warning"); return;
+    }
+    if (POS_PAYMENT !== "CREDIT" && amountPaid < total) {
+      showToast("প্রদত্ত টাকা কম!", "warning"); return;
+    }
+    if (POS_PAYMENT === "CREDIT" && (!custName || !custPhone)) {
       showToast("বাকি বিক্রিতে ক্রেতার নাম ও ফোন আবশ্যক!", "error"); return;
     }
 
     IS_SUBMITTING = true;
-    const btn     = document.getElementById("checkout-btn");
+    const btn = document.getElementById("pos-checkout-btn");
     btn.textContent = "⟳ সংরক্ষণ হচ্ছে...";
     btn.disabled    = true;
 
-    const requestId = "REQ-" + Date.now();
-    const saleData  = {
-      items             : CART,
-      customer_name     : customerName,
-      customer_phone    : customerPhone,
-      payment_method    : PAYMENT_METHOD,
-      amount_paid       : PAYMENT_METHOD === "CREDIT" ? creditAdvance : amountPaid,
-      sold_by           : window.APP.user?.email || "",
-      client_request_id : requestId
-    };
+    const paid = POS_PAYMENT === "CREDIT" ? creditAdv : amountPaid;
 
-    // Deduct from local cache immediately (offline-safe)
-    CART.forEach(item => deductFromCache(item.batch_id, item.qty));
+    // Offline cache deduct
+    items.forEach(item => deductFromCache(item.batch_id, item.qty));
+
+    const saleData = {
+      items, customer_name: custName, customer_phone: custPhone,
+      payment_method: POS_PAYMENT, amount_paid: paid,
+      sold_by: window.APP.user?.email || "",
+      client_request_id: "REQ-" + Date.now()
+    };
 
     if (!navigator.onLine) {
       saveOfflineSale(saleData);
-      showOfflineInvoice(saleData, total, creditAdvance);
-      showToast("✅ Offline invoice তৈরি — পরে sync হবে", "warning");
+      buildAndShowInvoice(null, saleData, total, paid);
+      showToast("✅ Offline invoice — পরে sync হবে", "warning");
+      IS_SUBMITTING = false;
+      btn.textContent = "🧾 Invoice তৈরি করুন";
+      btn.disabled    = false;
       return;
     }
 
     try {
       const result = await gasGet("saveSale", {
-        ...saleData,
-        items: JSON.stringify(saleData.items)
+        ...saleData, items: JSON.stringify(saleData.items)
       });
 
       if (result.status === "OK") {
-        // Credit হলে Credit_Ledger-এ save
-        if (PAYMENT_METHOD === "CREDIT") {
+        if (POS_PAYMENT === "CREDIT") {
           await gasGet("saveCreditSale", {
             invoice_number : result.data.invoice_number,
-            customer_name  : customerName,
-            customer_phone : customerPhone,
+            customer_name  : custName,
+            customer_phone : custPhone,
             total_amount   : result.data.subtotal,
-            paid_amount    : creditAdvance
+            paid_amount    : creditAdv
           });
         }
-        showInvoice(result.data, saleData);
+        buildAndShowInvoice(result.data, saleData, total, paid);
         showToast("✅ Invoice সংরক্ষিত!", "success");
       } else {
         showToast(result.message || "সমস্যা হয়েছে", "error");
@@ -1378,10 +1382,124 @@
       }
     } catch(err) {
       saveOfflineSale(saleData);
-      showOfflineInvoice(saleData, total, creditAdvance);
+      buildAndShowInvoice(null, saleData, total, paid);
       showToast("Offline — পরে sync হবে", "warning");
+      IS_SUBMITTING = false;
+      btn.textContent = "🧾 Invoice তৈরি করুন";
+      btn.disabled    = false;
     }
   };
+
+  // ── Invoice ──
+  function buildAndShowInvoice(serverData, saleData, total, paid) {
+    const invoiceNo    = serverData?.invoice_number || ("OFF-" + Date.now().toString().slice(-6));
+    const pharmacyName = window.APP.license?.pharmacy_name || "ফার্মেসি";
+    const now          = new Date().toLocaleString("bn-BD");
+    const dueAmount    = POS_PAYMENT === "CREDIT" ? Math.max(0, total - paid) : 0;
+    const change       = POS_PAYMENT !== "CREDIT" ? Math.max(0, paid - total) : 0;
+
+    const itemsHTML = saleData.items.map(item => {
+      const gross = item.qty * item.mrp_per_unit;
+      const disc  = gross * item.discount_percent / 100;
+      return `<div class="flex justify-between items-start mb-2 pb-2 border-b border-dashed border-gray-100">
+        <div class="flex-1">
+          <p class="text-sm font-semibold text-gray-800">${item.brand_name}</p>
+          <p class="text-xs text-gray-500">${item.qty} × ৳${item.mrp_per_unit}
+            ${item.discount_percent > 0 ? `<span class="text-red-500"> (${item.discount_percent}% ছাড়)</span>` : ""}
+          </p>
+        </div>
+        <p class="font-bold text-gray-800 ml-2">৳${(gross-disc).toFixed(2)}</p>
+      </div>`;
+    }).join("");
+
+    document.getElementById("invoice-content").innerHTML = `
+      <div class="text-center mb-4">
+        <h2 class="text-lg font-bold text-gray-800">🏥 ${pharmacyName}</h2>
+        <p class="text-xs text-gray-500">${now}</p>
+        <p class="text-sm font-bold text-blue-600 mt-1">Invoice: ${invoiceNo}</p>
+        ${!serverData ? '<span class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Offline</span>' : ""}
+      </div>
+      ${saleData.customer_name ? `
+        <div class="bg-gray-50 rounded-xl p-2 mb-3 text-xs text-gray-600">
+          👤 ${saleData.customer_name}
+          ${saleData.customer_phone ? ` &nbsp;|&nbsp; 📞 ${saleData.customer_phone}` : ""}
+        </div>` : ""}
+      <div class="mb-3">${itemsHTML}</div>
+      <div class="space-y-1">
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-600">মোট:</span>
+          <span class="font-bold">৳${total.toFixed(2)}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-sm text-gray-600">Payment:</span>
+          <span class="font-medium">${saleData.payment_method}</span>
+        </div>
+        ${POS_PAYMENT === "CREDIT" ? `
+          <div class="bg-orange-50 border border-orange-200 rounded-xl p-3 mt-2">
+            <div class="flex justify-between mb-1">
+              <span class="text-xs text-gray-600">Advance:</span>
+              <span class="font-medium text-green-600">৳${paid.toFixed(2)}</span>
+            </div>
+            <div class="flex justify-between border-t border-orange-200 pt-1">
+              <span class="text-sm font-bold text-orange-800">বাকি আছে:</span>
+              <span class="font-bold text-orange-600 text-base">৳${dueAmount.toFixed(2)}</span>
+            </div>
+          </div>` : `
+          <div class="flex justify-between border-t pt-1">
+            <span class="text-sm font-bold">ফেরত:</span>
+            <span class="font-bold text-green-600">৳${change.toFixed(2)}</span>
+          </div>`}
+      </div>
+      <p class="text-center text-xs text-gray-400 mt-3">ধন্যবাদ 🙏</p>`;
+
+    showScreen("screen-invoice");
+  }
+
+  window.printInvoice = () => window.print();
+  window.newSale      = () => { clearPOS(); showScreen("screen-pos"); };
+
+  // ── Offline helpers ──
+  const CACHE_KEY    = "pharmaos_stock_cache";
+  const CACHE_TS_KEY = "pharmaos_stock_cache_ts";
+  let STOCK_CACHE    = [];
+
+  function saveStockCache(data) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); localStorage.setItem(CACHE_TS_KEY, Date.now()); } catch(e) {}
+  }
+  function loadStockCache() {
+    try { const r = localStorage.getItem(CACHE_KEY); return r ? JSON.parse(r) : null; } catch(e) { return null; }
+  }
+  function getCacheTimestamp() {
+    const ts = localStorage.getItem(CACHE_TS_KEY);
+    return ts ? new Date(parseInt(ts)).toLocaleTimeString("bn-BD") : null;
+  }
+  function deductFromCache(batchId, qty) {
+    try {
+      const cache = loadStockCache(); if (!cache) return;
+      const item  = cache.find(s => s.batch_id === batchId);
+      if (item) { item.qty_in_stock_units = Math.max(0, parseInt(item.qty_in_stock_units) - qty); saveStockCache(cache); }
+    } catch(e) {}
+  }
+  function saveOfflineSale(saleData) {
+    const queue = JSON.parse(localStorage.getItem("pharmaos_offline_queue") || "[]");
+    queue.push({ ...saleData, offline_id: "OFF-" + Date.now(), offline_created_at: new Date().toISOString() });
+    localStorage.setItem("pharmaos_offline_queue", JSON.stringify(queue));
+    checkOfflineQueue();
+  }
+  function checkOfflineQueue() {
+    const queue = JSON.parse(localStorage.getItem("pharmaos_offline_queue") || "[]");
+    const box   = document.getElementById("offline-queue-box");
+    const count = document.getElementById("offline-queue-count");
+    if (!box) return;
+    if (queue.length > 0) { box.classList.remove("hidden"); if (count) count.textContent = queue.length; }
+    else box.classList.add("hidden");
+  }
+  async function refreshStockCache() {
+    try {
+      const res = await gasGet("getStock", {});
+      if (res.data) { saveStockCache(res.data); STOCK_CACHE = res.data.map(fixStockExp); }
+    } catch(e) {}
+  }
   // ════════════════════════════════
   // INVOICE DISPLAY
   // ════════════════════════════════
